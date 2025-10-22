@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content%}
+<h1>{{title}}</h1>
+<ul>
+    {% for g in games %}
+    {%if g.is_stock %} 
+        <li>
+                <h2>{{g.title}}</h2>
+                <p>{{g.platform}}<br>{{g.year_release}}<br><b>{{g.price}} ₽</b></p>
+                {%if not forloop.last %}
+                <hr>
+                {%endif%}
+        </li>    
+    {%endif%}
+    {%endfor%}
+</ul>
+{%endblock%}
