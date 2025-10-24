@@ -1,25 +1,40 @@
 <!DOCTYPE html>
 <head>
     <meta charset="UTF-8">
-    <title>{{title}}</title>
+    <title>{{title|default:"Game Store"|capfirst}}</title>
     {% load static %}
     <link type="text/css" href="{% static 'css/styles.css' %}" rel="stylesheet" />
     <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
 </head>
 <body>
     <div class="container">
-        <!-- Логотип и меню -->
         <div class="header-with-nav">
             <div class="logo">
                 <img src="{% static 'images/logo.jpg' %}" alt="GAME STORE" class="logo-image">
             </div>
             <nav class="navbar">
-                <p class="menu">{{menu|join:" | "}}</p>
+                <p class="menu">
+                    <a href="{% url 'home' %}" class="menu-link">Главная</a> |
+                    <a href="{% url 'catalog' %}" class="menu-link">Каталог</a> |
+                    <a href="{% url 'reviews' %}" class="menu-link">Отзывы</a> |
+                    <a href="{% url 'about' %}" class="menu-link">О сайте</a> |
+                    <a href="{% url 'login' %}" class="menu-link">Войти</a>
+                </p>
             </nav>
-            <div class="logo-placeholder"></div> <!-- Пустой блок для баланса -->
+            <div class="header-right">
+                <div class="cart-icon">
+                    <img src="{% static 'images/cart-icon.png' %}" alt="Корзина" class="cart-img">
+                    <span class="cart-count">0</span>
+                </div>
+            </div>
         </div>
         
         {% block content%} {% endblock %}
     </div>
+
+    <!-- Простой футер -->
+    <footer class="footer">
+        <p>&copy; 2024 GameStore. Все права защищены.</p>
+    </footer>
 </body>
 </html>

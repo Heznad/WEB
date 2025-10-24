@@ -1,34 +1,65 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load games_tags %}
 {% block content%}
-<h1 class="page-title">{{title}}</h1>
-<ul class="games-list">
-    {% for g in games %}
- 
-        <li class="game-card">
-            <div class="game-header">
-                <h2 class="game-title">{{g.title}}</h2>
-                <span class="age-rating">{{g.age_rating}}</span>
-            </div>
-            <div class="game-content">
-                <div class="game-image">
-                    <img src="{% static 'images/' %}{{g.image}}" alt="{{g.title}}" class="game-img">
+<div class="main-content-with-sidebar">
+    <!-- Боковое меню с жанрами -->
+    <div class="sidebar">
+        <h3>Жанры</h3>
+        <ul class="genre-list">
+            <li><a href="{% url 'catalog' %}" class="genre-link {% if not current_genre %}active{% endif %}">Все игры</a></li>
+            {% get_genres as genres %}
+            {% for genre in genres %}
+            <li><a href="{% url 'catalog_by_genre' genre %}" class="genre-link {% if current_genre == genre %}active{% endif %}">{{ genre }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Основной контент -->
+    <div class="content-main">
+        <h1 class="page-title">{{title|upper}}</h1>
+        
+        <!-- Блок для списка игр -->
+        {% block games_list %}
+        <ul class="games-list">
+            {% get_games as games %}
+            {% for g in games %}
+            <li class="game-card">
+                <div class="game-header">
+                    <a href="{% url 'catalog_game_id' g.id %}" class="game-title-link">
+                        <h2 class="game-title">{{g.title|capfirst}}</h2>
+                    </a>
+                    <span class="age-rating">{{g.age_rating|default:"18+"}}</span>
                 </div>
-                <div class="game-details">
-                    <p class="platform">{{g.platform}}</p>
-                    <p class="year">{{g.year_release}}</p>
-                    <p class="description">{{g.description}}</p>
-                    {% if g.is_stock %}
-                        <p class="price">{{g.price}} ₽</p>
-                    {% else %}
-                        <p class="price_not_in_stock">Нет в наличии</p>
-                    {% endif %}
+                <div class="game-content">
+                    <a href="{% url 'catalog_game_id' g.id %}" class="game-image-link">
+                        <div class="game-image">
+                            <img src="{% static 'images/' %}{{g.image}}" alt="{{g.title}}" class="game-img">
+                        </div>
+                    </a>
+                    <div class="game-details">
+                        <p class="platform">{{g.platform|upper}}</p>
+                        <p class="year">{{g.year_release}}</p>
+                        <p class="genres">
+                            {% for genre in g.genres %}
+                                <span class="genre-tag">{{genre}}</span>
+                            {% endfor %}
+                        </p>
+                        <p class="description">{{g.description}}</p>
+                        {% if g.is_stock %}
+                            <p class="price">{{g.price|floatformat:2}} ₽</p>
+                        {% else %}
+                            <p class="price_not_in_stock">Нет в наличии</p>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
-            {% if not forloop.last %}
-            <hr class="divider">
-            {% endif %}
-        </li>    
-    {% endfor %}
-</ul>
+                {% if not forloop.last %}
+                <hr class="divider">
+                {% endif %}
+            </li>    
+            {% endfor %}
+        </ul>
+        {% endblock games_list %}
+    </div>
+</div>
 {% endblock %}

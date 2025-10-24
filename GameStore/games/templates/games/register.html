@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="register-page">
+    <h1 class="page-title">Регистрация</h1>
+    
+    <div class="register-container">
+        <form class="register-form">
+            <div class="form-group">
+                <label for="username" class="form-label">Имя пользователя</label>
+                <input type="text" id="username" class="form-input" placeholder="Введите имя пользователя">
+            </div>
+            
+            <div class="form-group">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-input" placeholder="Введите ваш email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">Пароль</label>
+                <input type="password" id="password" class="form-input" placeholder="Введите пароль">
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm-password" class="form-label">Подтвердите пароль</label>
+                <input type="password" id="confirm-password" class="form-input" placeholder="Повторите пароль">
+            </div>
+            
+            <button type="submit" class="register-btn">Зарегистрироваться</button>
+        </form>
+        
+        <div class="login-link">
+            Уже есть аккаунт? <a href="{% url 'login' %}" class="login-btn-link">Войти</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

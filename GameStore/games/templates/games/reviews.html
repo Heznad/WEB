@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="reviews-page">
-    <h1 class="page-title">{{title}}</h1>
+    <h1 class="page-title">{{title|capfirst}}</h1>
     
     <div class="reviews-list">
         {% for review in reviews %}
@@ -14,24 +14,20 @@
                 <div class="review-rating">
                     Рейтинг: 
                     <span class="stars">
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= review.rating %}
-                                ★
-                            {% else %}
-                                ☆
-                            {% endif %}
-                        {% endfor %}
+                        {% with ""|center:review.rating as range %}
+                        {% for i in range %}★{% endfor %}
+                        {% endwith %}
                     </span>
                     ({{review.rating}}/5)
                 </div>
             </div>
             
             <div class="review-game">
-                Игра: <strong>{{review.game}}</strong>
+                Игра: <strong>{{review.game|capfirst}}</strong>
             </div>
             
             <div class="review-text">
-                {{review.text}}
+                {{review.text|linebreaks}} 
             </div>
         </div>
         {% endfor %}

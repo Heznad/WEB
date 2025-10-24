@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="game-detail-page">
+    <h1 class="page-title">{{game.title|upper}}</h1>
+    
+    <div class="game-detail-card">
+        <div class="game-detail-header">
+            <h2 class="game-title">{{game.title|capfirst}}</h2>
+            <span class="age-rating">{{game.age_rating|default:"18+"}}</span>
+        </div>
+        
+        <div class="game-detail-content">
+            <div class="game-detail-image">
+                <img src="{% static 'images/' %}{{game.image}}" alt="{{game.title}}" class="game-detail-img">
+            </div>
+            
+            <div class="game-detail-info">
+                <div class="info-section">
+                    <h3>Информация об игре</h3>
+                    <p><strong>Платформа:</strong> {{game.platform|upper}}</p>
+                    <p><strong>Год выпуска:</strong> {{game.year_release}}</p>
+                    <p><strong>Жанры:</strong> 
+                        {% for genre in game.genres %}
+                            <span class="genre-tag">{{genre}}</span>
+                        {% endfor %}
+                    </p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Описание</h3>
+                    <p class="game-description">{{game.description}}</p>
+                </div>
+                
+                <div class="info-section">
+                    <h3>Цена</h3>
+                    {% if game.is_stock %}
+                        <p  class="price" >{{game.price|floatformat:2}} ₽</p>
+                        <button class="buy-btn">Купить сейчас</button>
+                    {% else %}
+                        <p class="price_not_in_stock">Нет в наличии</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="back-link">
+        <a href="{% url 'catalog' %}" class="back-to-catalog">← Вернуться в каталог</a>
+    </div>
+</div>
+{% endblock %}

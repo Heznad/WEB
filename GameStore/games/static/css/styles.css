@@ -1,39 +1,8 @@
-/* Базовые стили */
+/* БАЗОВЫЕ СТИЛИ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-/* Стили для логотипа и меню в одной строке */
-.header-with-nav {
-    display: flex;
-    justify-content: space-between; /* Лого слева, меню по центру, placeholder справа */
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 15px 0;
-    border-bottom: 3px solid #ff0000;
-}
-
-.logo-image {
-    max-width: 150px;
-    height: auto;
-}
-
-.navbar {
-    margin: 0;
-    flex-grow: 1; /* Занимает доступное пространство */
-    text-align: center; /* Выравнивание текста по центру */
-}
-
-.menu {
-    margin: 0;
-    color: #ffffff;
-    font-size: 1.1em;
-}
-
-.logo-placeholder {
-    width: 150px; /* Такой же размер как у логотипа для баланса */
 }
 
 body {
@@ -49,21 +18,138 @@ body {
     padding: 20px;
 }
 
-/* Навигация */
-.navbar {
-    background-color: #1a1a1a;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 30px;
+/* СТИЛИ ДЛЯ ШАПКИ САЙТА */
+.header-with-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;              
+    border-bottom: 2px solid #ff0000; 
 }
 
-.menu {
+.logo-image {
+    max-width: 150px;
+    height: auto;
+}
+
+.navbar {
+    margin: 0;
+    flex-grow: 1;
     text-align: center;
+}
+
+.logo-placeholder {
+    width: 150px;
+}
+
+/* СТИЛИ ДЛЯ МЕНЮ НАВИГАЦИИ */
+.menu {
+    margin: 0;
     color: #ffffff;
     font-size: 1.1em;
 }
 
-/* Заголовок страницы */
+.menu-link {
+    color: #ffffff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+.menu-link:hover {
+    color: #ff0000;
+    background-color: #333;
+}
+
+/* СТИЛИ ДЛЯ КОРЗИНЫ */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.cart-icon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+    padding: 8px 15px;
+    background-color: #1a1a1a;
+    border-radius: 20px;
+    border: 1px solid #ff0000;
+}
+
+.cart-img {
+    width: 24px;
+    height: 24px;
+}
+
+.cart-count {
+    color: #ffffff;
+    font-size: 1.1em;
+    font-weight: bold;
+    background-color: #ff0000;
+    padding: 4px 10px;
+    border-radius: 10px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* СТИЛИ ДЛЯ БОКОВОГО МЕНЮ С ЖАНРАМИ */
+.main-content-with-sidebar {
+    display: flex;
+    gap: 30px;
+}
+
+.sidebar {
+    flex: 0 0 250px;
+    background-color: #1a1a1a;
+    border: 1px solid #ff0000;
+    border-radius: 10px;
+    padding: 20px;
+    height: fit-content;
+}
+
+.sidebar h3 {
+    color: #ffffff;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ff0000;
+    padding-bottom: 10px;
+}
+
+.genre-list {
+    list-style: none;
+}
+
+.genre-list li {
+    margin-bottom: 8px;
+}
+
+.genre-link {
+    color: #cccccc;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+.genre-link:hover {
+    color: #ffffff;
+    background-color: #333;
+}
+
+.genre-link.active {
+    color: #ffffff;
+    background-color: #ff0000;
+    font-weight: bold;
+}
+
+.content-main {
+    flex: 1;
+}
+
+/* СТИЛИ ДЛЯ ГЛАВНОЙ СТРАНИЦЫ И КАТАЛОГА */
 .page-title {
     color: #ffffff;
     text-align: center;
@@ -71,12 +157,10 @@ body {
     font-size: 2.5em;
 }
 
-/* Список игр */
 .games-list {
     list-style: none;
 }
 
-/* Карточка игры */
 .game-card {
     background-color: #1a1a1a;
     border: 2px solid #ff0000;
@@ -85,66 +169,6 @@ body {
     margin-bottom: 20px;
 }
 
-.game-title {
-    color: #ffffff;
-    font-size: 1.8em;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #ff0000;
-    padding-bottom: 10px;
-}
-
-/* Информация об игре */
-.game-info {
-    margin-top: 15px;
-}
-
-.platform {
-    color: #ff0000;
-    font-weight: bold;
-    font-size: 1.1em;
-    margin-bottom: 5px;
-}
-
-.year {
-    color: #cccccc;
-    font-size: 1em;
-    margin-bottom: 10px;
-}
-
-.price {
-    color: #ffffff;
-    font-size: 1.4em;
-    font-weight: bold;
-    background-color: #ff0000;
-    padding: 8px 15px;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-.price_not_in_stock {
-    color: #ffffff;
-    font-size: 1.4em;
-    font-weight: bold;
-    background-color: #000000;
-    padding: 8px 15px;
-    border-radius: 5px;
-    display: inline-block;
-}
-
-/* Разделитель */
-.divider {
-    border: none;
-    height: 1px;
-    background-color: #ff0000;
-    margin: 20px 0;
-    opacity: 0.5;
-}
-
-.content {
-    margin-top: 20px;
-}
-
-/* Стили для карточек с изображениями */
 .game-content {
     display: flex;
     gap: 20px;
@@ -169,10 +193,19 @@ body {
 }
 
 .game-header {
+    display: flex;
+    align-items: center;
     margin-bottom: 15px;
 }
 
-/* Возрастной рейтинг */
+.game-title {
+    color: #ffffff;
+    font-size: 1.8em;
+    margin: 0;
+    border-bottom: 1px solid #ff0000;
+    padding-bottom: 10px;
+}
+
 .age-rating {
     background-color: #ff0000;
     color: white;
@@ -183,7 +216,19 @@ body {
     margin-left: 10px;
 }
 
-/* Описание игры */
+.platform {
+    color: #ff0000;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.year {
+    color: #cccccc;
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
 .description {
     color: #cccccc;
     font-size: 0.9em;
@@ -192,18 +237,172 @@ body {
     font-style: italic;
 }
 
-/* Заголовок игры с рейтингом */
-.game-header {
+.price {
+    color: #ffffff;
+    font-size: 1.4em;
+    font-weight: bold;
+    background-color: #ff0000;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.price_not_in_stock {
+    color: #ffffff;
+    font-size: 1.4em;
+    font-weight: bold;
+    background-color: #000000;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.divider {
+    border: none;
+    height: 1px;
+    background-color: #ff0000;
+    margin: 20px 0;
+    opacity: 0.5;
+}
+
+.genres {
+    margin: 10px 0;
+}
+
+.genre-tag {
+    display: inline-block;
+    background-color: #333;
+    color: #ff0000;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ff0000;
+}
+
+/* СТИЛИ ДЛЯ СТРАНИЦЫ ОТДЕЛЬНОЙ ИГРЫ */
+.game-detail-page {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.game-detail-card {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.game-detail-header {
     display: flex;
     align-items: center;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #ff0000;
+    padding-bottom: 15px;
+}
+
+.game-detail-content {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.game-detail-image {
+    flex: 0 0 350px;
+}
+
+.game-detail-img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #ff0000;
+}
+
+.game-detail-info {
+    flex: 1;
+}
+
+.info-section {
+    margin-bottom: 25px;
+    padding: 20px;
+    background-color: #000000;
+    border-radius: 8px;
+    border-left: 4px solid #ff0000;
+}
+
+.info-section h3 {
+    color: #ffffff;
     margin-bottom: 15px;
+    font-size: 1.3em;
 }
 
-.game-title {
-    margin: 0;
+.game-description {
+    font-size: 1.1em;
+    line-height: 1.7;
+    font-style: normal;
 }
 
-/* Стили для страницы отзывов */
+.buy-btn {
+    background-color: #00ff00;
+    color: #000000;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.buy-btn:hover {
+    background-color: #00cc00;
+}
+
+.back-link {
+    text-align: center;
+}
+
+.back-to-catalog {
+    color: #ff0000;
+    text-decoration: none;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: 1px solid #ff0000;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.back-to-catalog:hover {
+    color: #ffffff;
+    background-color: #ff0000;
+}
+
+/* СТИЛИ ДЛЯ ССЫЛОК НА ИГРЫ */
+.game-title-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.game-title-link:hover .game-title {
+    color: #ff0000;
+}
+
+.game-image-link {
+    text-decoration: none;
+    display: block;
+}
+
+.game-image-link:hover .game-img {
+    border-color: #ffffff;
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+
+/* СТИЛИ ДЛЯ СТРАНИЦЫ ОТЗЫВОВ */
 .reviews-page {
     max-width: 800px;
     margin: 0 auto;
@@ -265,7 +464,7 @@ body {
     font-size: 0.95em;
 }
 
-/* Стили для страницы "О сайте" */
+/* СТИЛИ ДЛЯ СТРАНИЦЫ "О САЙТЕ" */
 .about-page {
     max-width: 1200px;
     margin: 0 auto;
@@ -395,7 +594,7 @@ body {
     border-left: 4px solid #ff0000;
 }
 
-/* Стили для страницы входа */
+/* СТИЛИ ДЛЯ СТРАНИЦЫ ВХОДА */
 .login-page {
     max-width: 400px;
     margin: 0 auto;
@@ -486,19 +685,80 @@ body {
     background-color: #cc0000;
 }
 
-.register-link {
+.register-link-text {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-link-text:hover {
+    text-decoration: underline;
+}
+
+/* СТИЛИ ДЛЯ СТРАНИЦЫ РЕГИСТРАЦИИ */
+.register-page {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.register-container {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+.register-form {
+    margin-bottom: 20px;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.register-btn:hover {
+    background-color: #cc0000;
+}
+
+.login-link {
     text-align: center;
     color: #cccccc;
     border-top: 1px solid #333;
     padding-top: 20px;
 }
 
-.register-btn {
+.login-btn-link {
     color: #ff0000;
     text-decoration: none;
     font-weight: bold;
 }
 
-.register-btn:hover {
+.login-btn-link:hover {
     text-decoration: underline;
+}
+
+/* СТИЛИ ДЛЯ ФУТЕРА */
+.footer {
+    background-color: #1a1a1a;
+    border-top: 3px solid #ff0000;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 50px;
+}
+
+.footer p {
+    color: #cccccc;
+    margin: 0;
 }

@@ -1,9 +1,9 @@
-from django.http import HttpResponse, HttpResponseNotFound, Http404, HttpResponseServerError
-from django.shortcuts import redirect, render
+from django.http import HttpResponseNotFound, Http404
+from django.shortcuts import render, get_object_or_404
 
 # Create your views here.
-menu = ["О сайте", "Каталог", "Отзывы","Войти"]
-data_db = [
+menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'Войти']
+games_db = [
     {
         'id': 1, 
         'title': 'Uncharted', 
@@ -13,7 +13,8 @@ data_db = [
         'is_stock': False, 
         'image': 'uncharted_cover.jpg',
         'age_rating': '16+',
-        'description': 'Приключенческий экшен от третьего лица, где вы играете за охотника за сокровищами Нейтана Дрейка.'
+        'description': 'Приключенческий экшен от третьего лица, где вы играете за охотника за сокровищами Нейтана Дрейка.',
+        'genres': ['Экшен', 'Приключения', 'Шутер']
     },
     {
         'id': 2, 
@@ -24,7 +25,8 @@ data_db = [
         'is_stock': True, 
         'image': 'the_witcher_3_cover.jpg',
         'age_rating': '18+',
-        'description': 'Эпическая RPG в мире фэнтези, где вы Геральт из Ривии - ведьмак, охотящийся на монстров.'
+        'description': 'Эпическая RPG в мире фэнтези, где вы Геральт из Ривии - ведьмак, охотящийся на монстров.',
+        'genres': ['RPG', 'Фэнтези', 'Приключения']
     },
     {
         'id': 3, 
@@ -35,7 +37,8 @@ data_db = [
         'is_stock': True, 
         'image': 'gta_5_cover.jpg',
         'age_rating': '18+',
-        'description': 'Открытый мир криминального экшена с тремя протагонистами в городе Лос-Сантос.'
+        'description': 'Открытый мир криминального экшена с тремя протагонистами в городе Лос-Сантос.',
+        'genres': ['Экшен', 'Приключения', 'Открытый мир']
     },
     {
         'id': 4, 
@@ -46,7 +49,8 @@ data_db = [
         'is_stock': True, 
         'image': 'elden_ring_cover.jpg',
         'age_rating': '16+',
-        'description': 'Фэнтезийная action-RPG с открытым миром от создателей Dark Souls.'
+        'description': 'Фэнтезийная action-RPG с открытым миром от создателей Dark Souls.',
+        'genres': ['RPG', 'Фэнтези', 'Экшен']
     },
     {
         'id': 5, 
@@ -57,10 +61,71 @@ data_db = [
         'is_stock': True, 
         'image': 'the_last_of_us_cover.jpg',
         'age_rating': '18+',
-        'description': 'Постапокалиптическая история о выживании и отношениях между Джоэлом и Элли.'
+        'description': 'Постапокалиптическая история о выживании и отношениях между Джоэлом и Элли.',
+        'genres': ['Экшен', 'Приключения', 'Хоррор']
+    },
+    {
+        'id': 6, 
+        'title': 'Cyberpunk 2077', 
+        'price': 1899.00, 
+        'platform': 'PC', 
+        'year_release': '2020', 
+        'is_stock': True, 
+        'image': 'cyberpunk_cover.jpg',
+        'age_rating': '18+',
+        'description': 'RPG в киберпанк-мире будущего с открытым миром и нелинейным сюжетом.',
+        'genres': ['RPG', 'Фантастика', 'Экшен']
+    },
+    {
+        'id': 7, 
+        'title': 'Red Dead Redemption 2', 
+        'price': 2199.00, 
+        'platform': 'PS4', 
+        'year_release': '2018', 
+        'is_stock': True, 
+        'image': 'red_dead_cover.jpg',
+        'age_rating': '18+',
+        'description': 'Приключения в диком западе с глубоким сюжетом и открытым миром.',
+        'genres': ['Приключения', 'Экшен', 'Открытый мир']
+    },
+    {
+        'id': 8, 
+        'title': 'Minecraft', 
+        'price': 799.00, 
+        'platform': 'PC', 
+        'year_release': '2011', 
+        'is_stock': True, 
+        'image': 'minecraft_cover.jpg',
+        'age_rating': '7+',
+        'description': 'Песочница с бесконечными возможностями для творчества и выживания.',
+        'genres': ['Песочница', 'Приключения', 'Выживание']
+    },
+    {
+        'id': 9, 
+        'title': 'FIFA 23', 
+        'price': 2999.00, 
+        'platform': 'PS5', 
+        'year_release': '2022', 
+        'is_stock': True, 
+        'image': 'fifa_cover.jpg',
+        'age_rating': '3+',
+        'description': 'Футбольный симулятор с реалистичной графикой и геймплеем.',
+        'genres': ['Спорт', 'Симулятор']
+    },
+    {
+        'id': 10, 
+        'title': 'Resident Evil 4', 
+        'price': 2499.00, 
+        'platform': 'PS5', 
+        'year_release': '2023', 
+        'is_stock': True, 
+        'image': 'resident_evil_cover.jpg',
+        'age_rating': '18+',
+        'description': 'Хоррор-экшен с элементами выживания и захватывающим сюжетом.',
+        'genres': ['Хоррор', 'Экшен', 'Выживание']
     },
 ]
-data_db_reviews = [
+reviews_db = [
     {
         'id': 1,
         'author': 'Алексей Петров',
@@ -102,7 +167,7 @@ data_db_reviews = [
         'game': 'Uncharted'
     }
 ]
-data_db_about = {
+about_db = {
     'title': 'О нашем магазине',
     'description': 'GameStore — это ведущий онлайн-магазин компьютерных игр, где каждый геймер найдет именно то, что ищет. Мы создали этот проект с одной простой целью: сделать покупку игр максимально удобной, быстрой и приятной для всех любителей видеоигр.',
     'features': [
@@ -144,15 +209,14 @@ data_db_about = {
 def index(request):
     data = {
         'title':'Главная страница',
-        'games': data_db,
         'menu':menu,
     }
     return render(request, 'games/index.html', context=data)
 
 def about(request):
     data = {
-        'title': data_db_about['title'],
-        'about': data_db_about,
+        'title': about_db['title'],
+        'about': about_db,
         'menu': menu,
     }
     return render(request, 'games/about.html', context=data)
@@ -160,18 +224,48 @@ def about(request):
 def reviews(request):
     data = {
         'title': 'Отзывы',
-        'reviews': data_db_reviews,
+        'reviews': reviews_db,
         'menu': menu,
     }
     return render(request, 'games/reviews.html', context=data)
 
 def catalog(request):
     data = {
-        'title':'Главная страница',
-        'games': data_db,
-        'menu':menu,
+        'title': 'Каталог',
+        'menu': menu,
     }
     return render(request, 'games/catalog.html', context=data)
+
+def catalog_by_genre(request, genre):
+    # Фильтруем игры по жанру
+    filtered_games = [game for game in games_db if genre in game['genres']]
+    
+    data = {
+        'title': f'Каталог - {genre}',
+        'games': filtered_games,
+        'menu': menu,
+        'current_genre': genre,
+    }
+    return render(request, 'games/catalog_genre.html', context=data)
+
+def catalog_game_id(request, game_id):
+    # Ищем игру по ID
+    game = None
+    for g in games_db:
+        if g['id'] == game_id:
+            game = g
+            break
+    
+    # Если игра не найдена - 404
+    if not game:
+        raise Http404("Игра не найдена")
+    
+    data = {
+        'title': game['title'],
+        'game': game,  # Передаем одну игру
+        'menu': menu,
+    }
+    return render(request, 'games/game_detail.html', context=data)
 
 def login(request):
     data = {
@@ -180,20 +274,13 @@ def login(request):
     }
     return render(request, 'games/login.html', context=data)
 
+def register(request):
+    data = {
+        'title': 'Регистрация',
+        'menu': menu,
+    }
+    return render(request, 'games/register.html', context=data)
+
 def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
-"""def categories_by_slug(request, cat_slug):
-    if request.GET:
-        print(request.GET)
-    if request.POST:
-        print(request.POST)
-    return HttpResponse(f"<h1>Игры по категориям<h1><p>slug:{cat_slug}</p>")"""
-
-#def archive(request, year):
-    #if year > 2025:
-    #    return redirect("home")
-    #return HttpResponse(f"<h1>Игры по годам</h1><p>{year}</p>")
-
-#def categories(request, cat_id):
-#    return HttpResponse(f"<h1>Игры по категориям<h1><p>id:{cat_id}</p>")
