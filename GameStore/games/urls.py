@@ -1,14 +1,15 @@
 from django.urls import path, register_converter
 from games import views, converters
 
-register_converter(converters.FourDigitYearConverter, "year4")
+#register_converter(converters.FourDigitYearConverter, "year4")
 
 urlpatterns = [
     path('', views.index, name='home'),
-    path('cats/<int:cat_id>/', views.categories),
-    path('cats/<slug:cat_slug>/', views.categories_by_slug, name='cats'),
-    path('archive/<year4:year>/', views.archive, name='archive'),
-    path('about/', views.about, name="about")
+    path('about/', views.about, name='about'),
+    path('catalog/', views.catalog, name='cats'),
+    path('reviews/', views.reviews, name='reviews'),
+    path('login/', views.login, name='login')
+    #path('cats/<slug:cat_slug>/', views.categories_by_slug, name='cats_slug'),
 ]
 
 

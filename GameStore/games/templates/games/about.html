@@ -1,4 +1,58 @@
 {% extends 'base.html' %}
-{% block content%}
-<h1>{{title}}</h1>
-{%endblock%}
+{% block content %}
+<div class="about-page">
+    <h1 class="page-title">{{about.title}}</h1>
+    
+    <div class="about-description">
+        <p>{{about.description}}</p>
+    </div>
+
+    <div class="features-section">
+        <h2>Почему выбирают нас?</h2>
+        <div class="features-grid">
+            {% for feature in about.features %}
+            <div class="feature-card">
+                <div class="feature-icon">{{feature.icon}}</div>
+                <h3 class="feature-title">{{feature.title}}</h3>
+                <p class="feature-text">{{feature.text}}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>Наша статистика</h2>
+        <div class="stats-grid">
+            {% for stat in about.stats %}
+            <div class="stat-item">
+                <div class="stat-number">{{stat.number}}</div>
+                <div class="stat-label">{{stat.label}}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="contact-section">
+        <h2>Контакты</h2>
+        <div class="contact-info">
+            <div class="contact-item">
+                <strong>Телефон:</strong> {{about.contact_info.phone}}
+            </div>
+            <div class="contact-item">
+                <strong>Email:</strong> {{about.contact_info.email}}
+            </div>
+            <div class="contact-item">
+                <strong>Время работы:</strong> {{about.contact_info.work_time}}
+            </div>
+            <div class="contact-item">
+                <strong>Поддержка:</strong> {{about.contact_info.support}}
+            </div>
+        </div>
+    </div>
+
+    <div class="mission-section">
+        <h2>Наша миссия</h2>
+        <p>Мы верим, что игры — это не просто развлечение, а целое искусство, способное объединять людей, рассказывать удивительные истории и дарить незабываемые эмоции. Наша задача — сделать этот мир доступным для каждого.</p>
+    </div>
+</div>
+{% endblock %}

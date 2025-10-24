@@ -1,0 +1,504 @@
+/* Базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Стили для логотипа и меню в одной строке */
+.header-with-nav {
+    display: flex;
+    justify-content: space-between; /* Лого слева, меню по центру, placeholder справа */
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px 0;
+    border-bottom: 3px solid #ff0000;
+}
+
+.logo-image {
+    max-width: 150px;
+    height: auto;
+}
+
+.navbar {
+    margin: 0;
+    flex-grow: 1; /* Занимает доступное пространство */
+    text-align: center; /* Выравнивание текста по центру */
+}
+
+.menu {
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.1em;
+}
+
+.logo-placeholder {
+    width: 150px; /* Такой же размер как у логотипа для баланса */
+}
+
+body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Навигация */
+.navbar {
+    background-color: #1a1a1a;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 30px;
+}
+
+.menu {
+    text-align: center;
+    color: #ffffff;
+    font-size: 1.1em;
+}
+
+/* Заголовок страницы */
+.page-title {
+    color: #ffffff;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+/* Список игр */
+.games-list {
+    list-style: none;
+}
+
+/* Карточка игры */
+.game-card {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.game-title {
+    color: #ffffff;
+    font-size: 1.8em;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ff0000;
+    padding-bottom: 10px;
+}
+
+/* Информация об игре */
+.game-info {
+    margin-top: 15px;
+}
+
+.platform {
+    color: #ff0000;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.year {
+    color: #cccccc;
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.price {
+    color: #ffffff;
+    font-size: 1.4em;
+    font-weight: bold;
+    background-color: #ff0000;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.price_not_in_stock {
+    color: #ffffff;
+    font-size: 1.4em;
+    font-weight: bold;
+    background-color: #000000;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+/* Разделитель */
+.divider {
+    border: none;
+    height: 1px;
+    background-color: #ff0000;
+    margin: 20px 0;
+    opacity: 0.5;
+}
+
+.content {
+    margin-top: 20px;
+}
+
+/* Стили для карточек с изображениями */
+.game-content {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.game-image {
+    flex: 0 0 200px;
+}
+
+.game-img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #ff0000;
+}
+
+.game-details {
+    flex: 1;
+    padding: 10px 0;
+}
+
+.game-header {
+    margin-bottom: 15px;
+}
+
+/* Возрастной рейтинг */
+.age-rating {
+    background-color: #ff0000;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+/* Описание игры */
+.description {
+    color: #cccccc;
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin: 10px 0;
+    font-style: italic;
+}
+
+/* Заголовок игры с рейтингом */
+.game-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.game-title {
+    margin: 0;
+}
+
+/* Стили для страницы отзывов */
+.reviews-page {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.reviews-list {
+    margin-top: 30px;
+}
+
+.review-card {
+    background-color: #1a1a1a;
+    border: 1px solid #ff0000;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.review-author {
+    display: flex;
+    flex-direction: column;
+}
+
+.review-author strong {
+    color: #ffffff;
+    font-size: 1.1em;
+}
+
+.review-date {
+    color: #cccccc;
+    font-size: 0.8em;
+}
+
+.review-rating {
+    color: #ffcc00;
+    font-size: 0.9em;
+}
+
+.stars {
+    color: #ffcc00;
+    font-size: 1.1em;
+}
+
+.review-game {
+    color: #ff0000;
+    margin-bottom: 10px;
+    font-size: 0.9em;
+}
+
+.review-text {
+    color: #ffffff;
+    line-height: 1.5;
+    font-size: 0.95em;
+}
+
+/* Стили для страницы "О сайте" */
+.about-page {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-description {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border-left: 4px solid #ff0000;
+}
+
+.about-description p {
+    font-size: 1.1em;
+    line-height: 1.6;
+    color: #cccccc;
+}
+
+.features-section,
+.stats-section,
+.contact-section,
+.mission-section {
+    margin-bottom: 40px;
+}
+
+.features-section h2,
+.stats-section h2,
+.contact-section h2,
+.mission-section h2 {
+    color: #ffffff;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ff0000;
+    padding-bottom: 10px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.feature-card {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    border-color: #ff0000;
+}
+
+.feature-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+}
+
+.feature-title {
+    color: #ffffff;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.feature-text {
+    color: #cccccc;
+    line-height: 1.4;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.stat-item {
+    background-color: #1a1a1a;
+    border: 1px solid #ff0000;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-number {
+    color: #ff0000;
+    font-size: 2em;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #cccccc;
+    font-size: 0.9em;
+}
+
+.contact-info {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.contact-item {
+    color: #cccccc;
+    margin-bottom: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+.contact-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.contact-item strong {
+    color: #ffffff;
+}
+
+.mission-section p {
+    background-color: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    color: #cccccc;
+    line-height: 1.6;
+    border-left: 4px solid #ff0000;
+}
+
+/* Стили для страницы входа */
+.login-page {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.login-container {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+.login-form {
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    color: #ffffff;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-input {
+    width: 100%;
+    padding: 12px;
+    background-color: #000000;
+    border: 1px solid #333;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 1em;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ff0000;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    color: #cccccc;
+    cursor: pointer;
+}
+
+.checkbox {
+    margin-right: 8px;
+}
+
+.forgot-password {
+    color: #ff0000;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.login-btn:hover {
+    background-color: #cc0000;
+}
+
+.register-link {
+    text-align: center;
+    color: #cccccc;
+    border-top: 1px solid #333;
+    padding-top: 20px;
+}
+
+.register-btn {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.register-btn:hover {
+    text-decoration: underline;
+}

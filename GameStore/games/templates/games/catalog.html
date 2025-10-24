@@ -4,7 +4,7 @@
 <h1 class="page-title">{{title}}</h1>
 <ul class="games-list">
     {% for g in games %}
-    {% if g.is_stock %} 
+ 
         <li class="game-card">
             <div class="game-header">
                 <h2 class="game-title">{{g.title}}</h2>
@@ -18,14 +18,17 @@
                     <p class="platform">{{g.platform}}</p>
                     <p class="year">{{g.year_release}}</p>
                     <p class="description">{{g.description}}</p>
-                    <p class="price">{{g.price}} ₽</p>
+                    {% if g.is_stock %}
+                        <p class="price">{{g.price}} ₽</p>
+                    {% else %}
+                        <p class="price_not_in_stock">Нет в наличии</p>
+                    {% endif %}
                 </div>
             </div>
             {% if not forloop.last %}
             <hr class="divider">
             {% endif %}
         </li>    
-    {% endif %}
     {% endfor %}
 </ul>
 {% endblock %}
