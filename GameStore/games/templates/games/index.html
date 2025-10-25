@@ -19,39 +19,37 @@
     <div class="content-main">
         <h1 class="page-title">{{title|upper}}</h1>
         <ul class="games-list">
-            {% get_games as games %} 
             {% for g in games %}
-            {% if g.is_stock %} 
-                <li class="game-card">
-                    <div class="game-header">
-                        <a href="{% url 'catalog_game_id' g.id %}" class="game-title-link">
-                            <h2 class="game-title">{{g.title|capfirst}}</h2>
-                        </a>
-                        <span class="age-rating">{{g.age_rating|default:"18+"}}</span>
-                    </div>
-                    <div class="game-content">
-                        <a href="{% url 'catalog_game_id' g.id %}" class="game-image-link">
-                            <div class="game-image">
-                                <img src="{% static 'images/' %}{{g.image}}" alt="{{g.title}}" class="game-img">
-                            </div>
-                        </a>
-                        <div class="game-details">
-                            <p class="platform">{{g.platform|upper}}</p>
-                            <p class="year">{{g.year_release}}</p>
-                            <p class="genres">
-                                {% for genre in g.genres %}
-                                    <span class="genre-tag">{{genre}}</span>
-                                {% endfor %}
-                            </p>
-                            <p class="description">{{g.description}}</p>
-                            <p class="price">{{g.price|floatformat:2}} ₽</p>
+            <li class="game-card">
+                <div class="game-header">
+                    <a href="{% url 'game_detail' g.slug %}" class="game-title-link">
+                        <h2 class="game-title">{{g.title|capfirst}}</h2>
+                    </a>
+                    <span class="age-rating">{{g.age_rating|default:"18+"}}</span>
+                </div>
+                <div class="game-content">
+                    <a href="{% url 'game_detail' g.slug %}" class="game-image-link">
+                        <div class="game-image">
+                            <img src="{% static 'images/' %}{{g.image}}" alt="{{g.title}}" class="game-img">
                         </div>
+                    </a>
+                    <div class="game-details">
+                        <p class="platform">{{g.platform|upper}}</p>
+                        <p class="year">{{g.year_release}}</p>
+                        <p class="genres">
+                            {% for genre in g.genres.split %}
+                                <span class="genre-tag">{{genre|cut:","}}</span>
+                            {% endfor %}
+                        </p>
+                        <p class="description">{{g.description}}</p>
+                        <!-- Все игры в наличии, поэтому всегда показываем цену -->
+                        <p class="price">{{g.price|floatformat:2}} ₽</p>
                     </div>
-                    {% if not forloop.last %}
-                    <hr class="divider">
-                    {% endif %}
-                </li>    
-            {% endif %}
+                </div>
+                {% if not forloop.last %}
+                <hr class="divider">
+                {% endif %}
+            </li>    
             {% endfor %}
         </ul>
     </div>

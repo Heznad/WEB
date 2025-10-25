@@ -18,21 +18,17 @@
     <!-- Основной контент -->
     <div class="content-main">
         <h1 class="page-title">{{title|upper}}</h1>
-        
-        <!-- Блок для списка игр -->
-        {% block games_list %}
         <ul class="games-list">
-            {% get_games as games %}
             {% for g in games %}
             <li class="game-card">
                 <div class="game-header">
-                    <a href="{% url 'catalog_game_id' g.id %}" class="game-title-link">
+                    <a href="{% url 'game_detail' g.slug %}" class="game-title-link">
                         <h2 class="game-title">{{g.title|capfirst}}</h2>
                     </a>
                     <span class="age-rating">{{g.age_rating|default:"18+"}}</span>
                 </div>
                 <div class="game-content">
-                    <a href="{% url 'catalog_game_id' g.id %}" class="game-image-link">
+                    <a href="{% url 'game_detail' g.slug %}" class="game-image-link">
                         <div class="game-image">
                             <img src="{% static 'images/' %}{{g.image}}" alt="{{g.title}}" class="game-img">
                         </div>
@@ -41,8 +37,8 @@
                         <p class="platform">{{g.platform|upper}}</p>
                         <p class="year">{{g.year_release}}</p>
                         <p class="genres">
-                            {% for genre in g.genres %}
-                                <span class="genre-tag">{{genre}}</span>
+                            {% for genre in g.genres.split %}
+                                <span class="genre-tag">{{genre|cut:","}}</span>
                             {% endfor %}
                         </p>
                         <p class="description">{{g.description}}</p>
@@ -59,7 +55,6 @@
             </li>    
             {% endfor %}
         </ul>
-        {% endblock games_list %}
     </div>
 </div>
 {% endblock %}
