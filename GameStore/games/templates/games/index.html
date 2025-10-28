@@ -3,17 +3,7 @@
 {% load games_tags %}
 {% block content%}
 <div class="main-content-with-sidebar">
-    <!-- Боковое меню с жанрами -->
-    <div class="sidebar">
-        <h3>Жанры</h3>
-        <ul class="genre-list">
-            <li><a href="{% url 'catalog' %}" class="genre-link {% if not current_genre %}active{% endif %}">Все игры</a></li>
-            {% get_genres as genres %}
-            {% for genre in genres %}
-            <li><a href="{% url 'catalog_by_genre' genre %}" class="genre-link {% if current_genre == genre %}active{% endif %}">{{ genre }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
+    {% include 'games/sidebar.html' %}
 
     <!-- Основной контент -->
     <div class="content-main">
@@ -37,12 +27,18 @@
                         <p class="platform">{{g.platform|upper}}</p>
                         <p class="year">{{g.year_release}}</p>
                         <p class="genres">
-                            {% for genre in g.genres.split %}
-                                <span class="genre-tag">{{genre|cut:","}}</span>
+                            {% for genre in g.genres.all %}
+                                <span class="genre-tag">{{genre.name}}</span>
                             {% endfor %}
                         </p>
+                        <div class="tags">
+                            {% for tag in g.tags.all %}
+                                <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
+                                    {{ tag.name }}
+                                </a>
+                            {% endfor %}
+                        </div>
                         <p class="description">{{g.description}}</p>
-                        <!-- Все игры в наличии, поэтому всегда показываем цену -->
                         <p class="price">{{g.price|floatformat:2}} ₽</p>
                     </div>
                 </div>

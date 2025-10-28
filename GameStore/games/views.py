@@ -1,20 +1,81 @@
 from django.http import HttpResponseNotFound, Http404
 from django.shortcuts import render, get_object_or_404
-from .models import Game, Review, Status
+from .models import Game, Review, Status, Genre, Tag
+from django.contrib.auth.models import User
+from django.db import connection
 
-# Create your views here.
 menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'Войти']
 
 def fill_database():
-    # Проверяем, есть ли уже данные в БД
-    if Game.objects.exists():
-        print("База данных уже заполнена")
-        return
+    # Если есть какие-то данные - удаляем их
+    if Game.objects.exists() or Genre.objects.exists() or Tag.objects.exists():
+        print("🗑️ Очищаем старые данные...")
+        Review.objects.all().delete()
+        Game.objects.all().delete()
+        Tag.objects.all().delete()
+        Genre.objects.all().delete()
+        User.objects.filter(username='test_user').delete()
+        print("✅ Старые данные удалены")
+
+    with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name IN ('games_game', 'games_genre', 'games_tag', 'games_review', 'games_cart', 'games_cartitem', 'games_game_tags', 'games_game_genres')")
+        
+    print("✅ Старые данные удалены и автоинкремент сброшен")
+
+    # Создаем жанры
+    genres_data = [
+        {'name': 'Экшен', 'slug': 'action'},
+        {'name': 'Приключения', 'slug': 'adventure'},
+        {'name': 'RPG', 'slug': 'rpg'},
+        {'name': 'Шутер', 'slug': 'shooter'},
+        {'name': 'Фэнтези', 'slug': 'fantasy'},
+        {'name': 'Открытый мир', 'slug': 'open-world'},
+        {'name': 'Хоррор', 'slug': 'horror'},
+        {'name': 'Спорт', 'slug': 'sport'},
+        {'name': 'Симулятор', 'slug': 'simulator'},
+        {'name': 'Выживание', 'slug': 'survival'},
+        {'name': 'Песочница', 'slug': 'sandbox'},
+    ]
     
-    # Данные игр
+    genres_dict = {}
+    for genre_data in genres_data:
+        genre = Genre.objects.create(**genre_data)
+        genres_dict[genre.name] = genre
+        print(f"✅ Создан жанр: {genre.name}")
+
+    # СОЗДАЕМ ТЕГИ
+    tags_data = [
+        {'name': 'Хит продаж', 'slug': 'bestseller'},
+        {'name': 'Новинка', 'slug': 'new'},
+        {'name': 'Со скидкой', 'slug': 'discount'},
+        {'name': 'Распродажа', 'slug': 'sale'},
+        {'name': 'Мультиплеер', 'slug': 'multiplayer'},
+        {'name': 'Кооператив', 'slug': 'coop'},
+        {'name': 'Одиночная', 'slug': 'singleplayer'},
+        {'name': 'С прокачкой', 'slug': 'leveling'},
+        {'name': 'С крафтом', 'slug': 'crafting'},
+        {'name': 'Атмосферная', 'slug': 'atmospheric'},
+    ]
+    
+    tags_dict = {}
+    for tag_data in tags_data:
+        tag = Tag.objects.create(**tag_data)
+        tags_dict[tag.name] = tag
+        print(f"✅ Создан тег: {tag.name}")
+
+    # Создаем тестового пользователя для отзывов
+    test_user, created = User.objects.get_or_create(
+        username='test_user',
+        defaults={'email': 'test@example.com', 'first_name': 'Тестовый', 'last_name': 'Пользователь'}
+    )
+    if created:
+        test_user.set_password('test123')
+        test_user.save()
+        print(f"✅ Создан тестовый пользователь: {test_user.username}")
+
+    # Данные игр с жанрами и тегами
     games_data = [
         {
-            'id': 1, 
             'title': 'Uncharted', 
             'price': 999.00, 
             'platform': 'PS3', 
@@ -23,11 +84,11 @@ def fill_database():
             'image': 'uncharted_cover.jpg',
             'age_rating': '16+',
             'description': 'Приключенческий экшен от третьего лица, где вы играете за охотника за сокровищами Нейтана Дрейка.',
-            'genres': 'Экшен, Приключения, Шутер',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Экшен', 'Приключения', 'Шутер'],
+            'tag_names': ['Одиночная', 'Приключения']
         },
         {
-            'id': 2, 
             'title': 'The Witcher 3: Wild Hunt', 
             'price': 1999.00, 
             'platform': 'XBOX', 
@@ -36,11 +97,11 @@ def fill_database():
             'image': 'the_witcher_3_cover.jpg',
             'age_rating': '18+',
             'description': 'Эпическая RPG в мире фэнтези, где вы Геральт из Ривии - ведьмак, охотящийся на монстров.',
-            'genres': 'RPG, Фэнтези, Приключения',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['RPG', 'Фэнтези', 'Приключения'],
+            'tag_names': ['Хит продаж', 'Открытый мир', 'С прокачкой', 'Одиночная']
         },
         {
-            'id': 3, 
             'title': 'Grand Theft Auto V', 
             'price': 1499.00, 
             'platform': 'PC', 
@@ -49,11 +110,11 @@ def fill_database():
             'image': 'gta_5_cover.jpg',
             'age_rating': '18+',
             'description': 'Открытый мир криминального экшена с тремя протагонистами в городе Лос-Сантос.',
-            'genres': 'Экшен, Приключения, Открытый мир',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Экшен', 'Приключения', 'Открытый мир'],
+            'tag_names': ['Хит продаж', 'Открытый мир', 'Мультиплеер']
         },
         {
-            'id': 4, 
             'title': 'Elden Ring', 
             'price': 2609.00, 
             'platform': 'PS5', 
@@ -62,11 +123,11 @@ def fill_database():
             'image': 'elden_ring_cover.jpg',
             'age_rating': '16+',
             'description': 'Фэнтезийная action-RPG с открытым миром от создателей Dark Souls.',
-            'genres': 'RPG, Фэнтези, Экшен',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['RPG', 'Фэнтези', 'Экшен'],
+            'tag_names': ['Новинка', 'С прокачкой', 'Атмосферная', 'Одиночная']
         },
         {
-            'id': 5, 
             'title': 'The Last of Us', 
             'price': 1299.00, 
             'platform': 'PS4', 
@@ -75,11 +136,11 @@ def fill_database():
             'image': 'the_last_of_us_cover.jpg',
             'age_rating': '18+',
             'description': 'Постапокалиптическая история о выживании и отношениях между Джоэлом и Элли.',
-            'genres': 'Экшен, Приключения, Хоррор',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Экшен', 'Приключения', 'Хоррор'],
+            'tag_names': ['Атмосферная', 'Одиночная']
         },
         {
-            'id': 6, 
             'title': 'Cyberpunk 2077', 
             'price': 1899.00, 
             'platform': 'PC', 
@@ -88,11 +149,11 @@ def fill_database():
             'image': 'cyberpunk_cover.jpg',
             'age_rating': '18+',
             'description': 'RPG в киберпанк-мире будущего с открытым миром и нелинейным сюжетом.',
-            'genres': 'RPG, Фантастика, Экшен',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['RPG', 'Фантастика', 'Экшен'],
+            'tag_names': ['Атмосферная', 'С прокачкой', 'Одиночная']
         },
         {
-            'id': 7, 
             'title': 'Red Dead Redemption 2', 
             'price': 2199.00, 
             'platform': 'PS4', 
@@ -101,11 +162,11 @@ def fill_database():
             'image': 'red_dead_cover.jpg',
             'age_rating': '18+',
             'description': 'Приключения в диком западе с глубоким сюжетом и открытым миром.',
-            'genres': 'Приключения, Экшен, Открытый мир',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Приключения', 'Экшен', 'Открытый мир'],
+            'tag_names': ['Хит продаж', 'Открытый мир', 'Атмосферная', 'Одиночная']
         },
         {
-            'id': 8, 
             'title': 'Minecraft', 
             'price': 799.00, 
             'platform': 'PC', 
@@ -114,11 +175,11 @@ def fill_database():
             'image': 'minecraft_cover.jpg',
             'age_rating': '7+',
             'description': 'Песочница с бесконечными возможностями для творчества и выживания.',
-            'genres': 'Песочница, Приключения, Выживание',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Песочница', 'Приключения', 'Выживание'],
+            'tag_names': ['С крафтом', 'Мультиплеер', 'Кооператив']
         },
         {
-            'id': 9, 
             'title': 'FIFA 23', 
             'price': 2999.00, 
             'platform': 'PS5', 
@@ -127,11 +188,11 @@ def fill_database():
             'image': 'fifa_cover.jpg',
             'age_rating': '3+',
             'description': 'Футбольный симулятор с реалистичной графикой и геймплеем.',
-            'genres': 'Спорт, Симулятор',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Спорт', 'Симулятор'],
+            'tag_names': ['Мультиплеер', 'Спорт']
         },
         {
-            'id': 10, 
             'title': 'Resident Evil 4', 
             'price': 2499.00, 
             'platform': 'PS5', 
@@ -140,76 +201,76 @@ def fill_database():
             'image': 'resident_evil_cover.jpg',
             'age_rating': '18+',
             'description': 'Хоррор-экшен с элементами выживания и захватывающим сюжетом.',
-            'genres': 'Хоррор, Экшен, Выживание',
             'is_published': Status.PUBLISHED,
+            'genre_names': ['Хоррор', 'Экшен', 'Выживание'],
+            'tag_names': ['Атмосферная', 'Одиночная', 'Страшная']
         },
     ]
 
-    # Данные отзывов
+    # Создаем игры и устанавливаем связи с жанрами и тегами
+    games_dict = {}
+    for game_data in games_data:
+        # Извлекаем названия жанров и тегов
+        genre_names = game_data.pop('genre_names', [])
+        tag_names = game_data.pop('tag_names', [])
+        
+        # Создаем игру
+        from django.utils.text import slugify
+        game_data['slug'] = slugify(game_data['title'])
+        
+        game = Game.objects.create(**game_data)
+        
+        # Устанавливаем связи с жанрами
+        for genre_name in genre_names:
+            genre = genres_dict.get(genre_name)
+            if genre:
+                game.genres.add(genre)
+        
+        # Устанавливаем связи с тегами
+        for tag_name in tag_names:
+            tag = tags_dict.get(tag_name)
+            if tag:
+                game.tags.add(tag)
+        
+        games_dict[game.title] = game
+        print(f"✅ Создана игра: {game.title} с жанрами: {', '.join(genre_names)} и тегами: {', '.join(tag_names)}")
+
+    # Создаем отзывы
     reviews_data = [
         {
-            'id': 1,
-            'author': 'Алексей Петров',
             'rating': 5,
             'text': 'Отличный магазин! Быстрая доставка, игры всегда лицензионные. The Witcher 3 работала без нареканий.',
             'game_title': 'The Witcher 3: Wild Hunt'
         },
         {
-            'id': 2,
-            'author': 'Мария Иванова',
             'rating': 4,
             'text': 'Хороший сервис, но хотелось бы больше акций. GTA V пришла мгновенно после оплаты.',
             'game_title': 'Grand Theft Auto V'
         },
         {
-            'id': 3,
-            'author': 'Дмитрий Сидоров',
             'rating': 5,
             'text': 'Elden Ring - просто шедевр! Спасибо за оперативную доставку ключа. Буду покупать ещё.',
             'game_title': 'Elden Ring'
         },
         {
-            'id': 4,
-            'author': 'Ольга Козлова',
             'rating': 5,
             'text': 'The Last of Us тронула до слёз. Качество обслуживания на высоте, всем рекомендую этот магазин!',
             'game_title': 'The Last of Us'
         },
         {
-            'id': 5,
-            'author': 'Сергей Волков',
             'rating': 3,
             'text': 'Uncharted понравилась, но были небольшие проблемы с активацией. Техподдержка помогла быстро.',
             'game_title': 'Uncharted'
         }
     ]
 
-    # Создаем игры
-    games_dict = {}  # Для хранения созданных игр по названию
-    for game_data in games_data:
-        # Удаляем id, так как он будет автоматически генерироваться
-        game_data_copy = game_data.copy()
-        game_id = game_data_copy.pop('id')
-        
-        # Создаем слаг из названия
-        from django.utils.text import slugify
-        game_data_copy['slug'] = slugify(game_data_copy['title'])
-        
-        game = Game.objects.create(**game_data_copy)
-        games_dict[game.title] = game
-        print(f"✅ Создана игра: {game.title} (slug: {game.slug})")
-
-    # Создаем отзывы
     for review_data in reviews_data:
-        review_data_copy = review_data.copy()
-        review_id = review_data_copy.pop('id')
-        game_title = review_data_copy.pop('game_title')
+        game_title = review_data.pop('game_title')
         
-        # Находим игру по названию
         game = games_dict.get(game_title)
         if game:
-            review = Review.objects.create(game=game, **review_data_copy)
-            print(f"✅ Создан отзыв от {review.author} на {game.title}")
+            review = Review.objects.create(user=test_user, game=game, **review_data)
+            print(f"✅ Создан отзыв от {review.user.username} на {game.title}")
         else:
             print(f"❌ Игра '{game_title}' не найдена для отзыва")
 
@@ -258,7 +319,7 @@ def index(request):
     # Заполняем БД при первом обращении
     fill_database()
     
-    games_from_db = Game.published.in_stock()[:6]
+    games_from_db = Game.published.in_stock()
     
     data = {
         'title':'Главная страница',
@@ -295,16 +356,17 @@ def catalog(request):
     }
     return render(request, 'games/catalog.html', context=data)
 
-def catalog_by_genre(request, genre):
-    filtered_games = Game.published.filter(genres__icontains=genre)
+def catalog_by_genre(request, genre_slug):
+    genre = get_object_or_404(Genre, slug=genre_slug)
+    filtered_games = Game.published.filter(genres=genre)
     
     data = {
-        'title': f'Каталог - {genre}',
+        'title': f'Каталог - {genre.name}',
         'games': filtered_games,
         'menu': menu,
-        'current_genre': genre,
+        'current_genre': genre_slug,
     }
-    return render(request, 'games/catalog_genre.html', context=data)
+    return render(request, 'games/catalog.html', context=data)
 
 def catalog_game_slug(request, game_slug):
     game = get_object_or_404(Game.published, slug=game_slug)
@@ -315,6 +377,18 @@ def catalog_game_slug(request, game_slug):
         'menu': menu,
     }
     return render(request, 'games/game_detail.html', context=data)
+
+def catalog_by_tag(request, tag_slug):
+    tag = get_object_or_404(Tag, slug=tag_slug)
+    filtered_games = Game.published.filter(tags=tag)
+    
+    data = {
+        'title': f'Каталог - Тег: {tag.name}',
+        'games': filtered_games,
+        'menu': menu,
+        'current_tag': tag_slug,
+    }
+    return render(request, 'games/catalog.html', context=data)
 
 def login(request):
     data = {

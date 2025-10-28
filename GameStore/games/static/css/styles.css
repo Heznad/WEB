@@ -762,3 +762,71 @@ body {
     color: #cccccc;
     margin: 0;
 }
+
+/* СТИЛИ ДЛЯ ТЕГОВ */
+
+/* Теги в боковом меню */
+.game-tag {
+    color: #cccccc;
+    text-decoration: none;
+    padding: 2px 2px;
+    font-size: small;
+    border-radius: 1px;
+    border: 1px solid #939292;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.game-tag:hover {
+    color: #ffffff;
+    background-color: #333;
+}
+
+.game-tag.active {
+    color: #ffffff;
+    background-color: #ff0000;
+    font-weight: bold;
+}
+
+/* Теги в карточках игр (квадратные) */
+.game-card .game-tag {
+    display: inline-block;
+    background-color: #333;
+    color: #ffffff;
+    padding: 4px 8px;
+    font-size: 0.7em;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #939292;
+    text-decoration: none;
+}
+
+.game-card .game-tag:hover {
+    background-color: #ff0000;
+    color: #ffffff;
+}
+
+/* Теги на странице деталей игры */
+.game-detail-page .game-tag {
+    display: inline-block;
+    background-color: #333;
+    color: #ffffff;
+    padding: 3px 3px;
+    font-size: 0.7em;
+    margin: 4px 8px 4px 0;
+    border: 1px solid #939292;
+    text-decoration: none;
+}
+
+.game-detail-page .game-tag:hover {
+    background-color: #ff0000;
+    color: #ffffff;
+}
+
+.game-tag-list {
+    list-style: none;
+}
+
+.game-tag-list li {
+    margin-bottom: 8px;
+}

@@ -1,0 +1,18 @@
+<!-- Боковое меню с жанрами -->
+{% load games_tags %}    
+<div class="sidebar">
+    <h3>Жанры</h3>
+    <ul class="genre-list">
+        <li><a href="{% url 'catalog' %}" class="genre-link {% if not current_genre %}active{% endif %}">Все игры</a></li>
+        {% get_genres as genres %}
+        {% for genre in genres %}
+        <li><a href="{% url 'catalog_by_genre' genre.slug %}" class="genre-link {% if current_genre == genre.slug %}active{% endif %}">{{ genre.name }}</a></li>
+        {% endfor %}
+    </ul>
+        
+    <h3 style="margin-top: 20px;">Теги</h3>
+        {% get_all_tags as tags %}
+        {% for tag in tags %}
+        <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">{{ tag.name }}</a>
+        {% endfor %}
+</div>

@@ -21,10 +21,16 @@
                     <p><strong>Платформа:</strong> {{game.platform|upper}}</p>
                     <p><strong>Год выпуска:</strong> {{game.year_release}}</p>
                     <p><strong>Жанры:</strong> 
-                        {% for genre in game.genres.split %}
-                            <span class="genre-tag">{{genre|cut:","}}</span>
+                        {% for genre in game.genres.all %}
+                            <span class="genre-tag">{{genre.name}}</span>
                         {% endfor %}
                     </p>
+                    <p><strong>Теги:</strong></p>
+                        {% for tag in game.tags.all %}
+                            <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
+                                 {{ tag.name }}
+                            </a>
+                        {% endfor %}
                 </div>
                 
                 <div class="info-section">
