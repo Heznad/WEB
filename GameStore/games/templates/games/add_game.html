@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-page">
+    <h1 class="page-title">{{title|upper}}</h1>
+    <div class="form-container">
+        <form method="post" class="game-form">
+            {% csrf_token %} 
+            <!-- Общие ошибки формы -->
+            {% if form.non_field_errors %}
+            <div class="form-error global-errors">
+                {% for error in form.non_field_errors %}
+                <p class="error-message"> {{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            <!-- Поля формы -->
+            <div class="form-fields">
+                {% for field in form %}
+                <div class="form-group {% if field.errors %}has-error{% endif %}">
+                    <label class="form-label" for="{{ field.id_for_label }}">
+                        {{ field.label }}:
+                        {% if field.field.required %}<span class="required">*</span>{% endif %}
+                    </label>
+                    
+                    {{ field }}
+                    
+                    <!-- Подсказки для поля -->
+                    {% if field.help_text %}
+                    <div class="help-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    
+                    <!-- Ошибки поля -->
+                    {% if field.errors %}
+                    <div class="field-errors">
+                        {% for error in field.errors %}
+                        <span class="error-message">⚠ {{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">Добавить игру</button>
+                <a href="{% url 'catalog' %}" class="cancel-btn">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
