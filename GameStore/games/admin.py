@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib import messages
-from .models import Game,Review,Tag,Cart,CartItem,Genre
+from django.utils.safestring import mark_safe
+from .models import Game, Review, Tag, Cart, CartItem, Genre, UploadFiles
 
 class PriceRangeFilter(admin.SimpleListFilter):
     title = 'Ценовой диапазон'
@@ -28,7 +29,7 @@ class PriceRangeFilter(admin.SimpleListFilter):
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):
     list_display = (
-        'title', 'price', 'platform', 'year_release', 
+        'title', 'price', 'platform', 'year_release',
         'is_stock', 'is_published', 'time_create',
         'price_in_usd', 'game_age', 'brief_info'
     )
@@ -57,7 +58,8 @@ class GameAdmin(admin.ModelAdmin):
         'is_stock',
         'is_published',
         'age_rating',
-        'image',
+        'image', #Добавил поле image
+        'image_preview',
         'description',
         'genres',
         'tags',
@@ -69,41 +71,62 @@ class GameAdmin(admin.ModelAdmin):
     
     filter_horizontal = ['genres', 'tags']
     
-    readonly_fields = ['time_create', 'time_update']
+    readonly_fields = ['time_create', 'time_update', 'image_preview']
+    
+    #Добавил пользовательское поле для отображения изображения из админ панели в форме редактирования
+    @admin.display(description="Текущее изображение")
+    def image_preview(self, obj):
+        if obj and obj.image:
+            return mark_safe(f'''
+                <div style="margin: 10px 0;">
+                    <img src="{obj.image.url}" width="300" style="object-fit: contain; border-radius: 8px; border: 2px solid #ddd;" />
+                    <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                        <strong>Текущее изображение:</strong><br>
+                        {obj.image.name}
+                    </div>
+                </div>
+            ''')
+        return mark_safe('<div style="color: #999; font-style: italic;">Изображение не загружено</div>')
     
     @admin.display(description="Цена в USD")
     def price_in_usd(self, obj):
-        exchange_rate = 95
-        usd_price = obj.price / exchange_rate
-        return f"${usd_price:.2f}"
+        if obj and obj.price:
+            exchange_rate = 95
+            usd_price = obj.price / exchange_rate
+            return f"${usd_price:.2f}"
+        return "$0.00"
     
     @admin.display(description="Возраст игры")
     def game_age(self, obj):
-        from datetime import datetime
-        current_year = datetime.now().year
-        age = current_year - obj.year_release
-        
-        if age == 0:
-            return "Новый релиз"
-        elif age == 1:
-            return "1 год"
-        elif 2 <= age <= 4:
-            return f"{age} года"
-        else:
-            return f"{age} лет"
+        if obj and obj.year_release:
+            from datetime import datetime
+            current_year = datetime.now().year
+            age = current_year - obj.year_release
+            
+            if age == 0:
+                return "Новый релиз"
+            elif age == 1:
+                return "1 год"
+            elif 2 <= age <= 4:
+                return f"{age} года"
+            else:
+                return f"{age} лет"
+        return "Не указан"
     
     @admin.display(description="Краткая информация")
     def brief_info(self, obj):
-        tags_count = obj.tags.count()
-        genres_count = obj.genres.count()
-        return f"{genres_count} жанра, {tags_count} тегов"
+        if obj:
+            tags_count = obj.tags.count()
+            genres_count = obj.genres.count()
+            return f"{genres_count} жанра, {tags_count} тегов"
+        return "Нет данных"
     
-    @admin.action(description="Опубликовать выбранные игры")
+    @admin.action(description="Опубликовать игры")
     def set_published(self, request, queryset):
         count = queryset.update(is_published=True)
         self.message_user(request, f"{count} игр опубликовано", messages.SUCCESS)
     
-    @admin.action(description="Применить скидку 10 процентов")
+    @admin.action(description="Скидка 10 процентов")
     def apply_discount_10(self, request, queryset):
         updated_count = 0
         for game in queryset:
@@ -114,6 +137,67 @@ class GameAdmin(admin.ModelAdmin):
                 updated_count += 1
         
         self.message_user(request, f"Скидка применена к {updated_count} играм", messages.SUCCESS)
+
+@admin.register(UploadFiles)
+class UploadFilesAdmin(admin.ModelAdmin):
+    list_display = ('id', 'original_filename', 'file_preview', 'description', 'file_size_formatted', 'uploaded_at')
+    list_display_links = ('id', 'original_filename')
+    list_filter = ['uploaded_at']
+    search_fields = ['original_filename', 'description']
+    readonly_fields = ['uploaded_at', 'file_size', 'original_filename', 'file_preview_large']
+    
+    fields = [
+        'original_filename',
+        'file',
+        'file_preview_large',
+        'description',
+        'file_size',
+        'uploaded_at',
+    ]
+    
+    def file_size_formatted(self, obj):
+        if obj.file_size < 1024:
+            return f"{obj.file_size} байт"
+        elif obj.file_size < 1024 * 1024:
+            return f"{obj.file_size / 1024:.1f} KB"
+        else:
+            return f"{obj.file_size / (1024 * 1024):.1f} MB"
+    file_size_formatted.short_description = 'Размер файла'
+    
+    @admin.display(description="Файл")
+    def file_preview(self, obj):
+        if obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+                return mark_safe(f'<img src="{obj.file.url}" width="50" height="50" style="object-fit: cover; border-radius: 4px;" />')
+            else:
+                return f"📄 {file_extension.upper()}"
+        return "❌"
+    
+    @admin.display(description="Предпросмотр файла")
+    def file_preview_large(self, obj):
+        if obj.file:
+            file_extension = obj.file.name.split('.')[-1].lower()
+            if file_extension in ['jpg', 'jpeg', 'png', 'gif']:
+                return mark_safe(f'''
+                    <div style="margin: 10px 0;">
+                        <img src="{obj.file.url}" width="300" style="object-fit: contain; border-radius: 8px; border: 2px solid #ddd;" />
+                        <div style="margin-top: 8px; font-size: 12px; color: #666;">
+                            <strong>Предпросмотр:</strong> {obj.file.name}
+                        </div>
+                    </div>
+                ''')
+            else:
+                return mark_safe(f'''
+                    <div style="margin: 10px 0; padding: 20px; background: #f5f5f5; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">📄</div>
+                        <div style="font-size: 14px; color: #666;">
+                            <strong>Файл:</strong> {obj.original_filename}<br>
+                            <strong>Тип:</strong> {file_extension.upper()}
+                        </div>
+                    </div>
+                ''')
+        return mark_safe('<div style="color: #999; font-style: italic;">Файл не загружен</div>')
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):

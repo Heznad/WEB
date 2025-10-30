@@ -12,7 +12,11 @@
         
         <div class="game-detail-content">
             <div class="game-detail-image">
-                <img src="{% static 'images/' %}{{game.image}}" alt="{{game.title}}" class="game-detail-img">
+                {% if game.image %}
+                    <img src="{{ game.image.url }}" alt="{{game.title}}" class="game-detail-img">
+                {% else %}
+                    <img src="{% static 'images/default_game.jpg' %}" alt="{{game.title}}" class="game-detail-img">
+                {% endif %}
             </div>
             
             <div class="game-detail-info">

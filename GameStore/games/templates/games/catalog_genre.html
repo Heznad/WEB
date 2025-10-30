@@ -15,7 +15,11 @@
         <div class="game-content">
             <a href="{% url 'game_detail' g.slug %}" class="game-image-link">
                 <div class="game-image">
-                    <img src="{% static 'images/' %}{{g.image}}" alt="{{g.title}}" class="game-img">
+                    {% if g.image %}
+                        <img src="{{ g.image.url }}" alt="{{g.title}}" class="game-img">
+                    {% else %}
+                        <img src="{% static 'images/default_game.jpg' %}" alt="{{g.title}}" class="game-img">
+                    {% endif %}
                 </div>
             </a>
             <div class="game-details">

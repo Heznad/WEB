@@ -1,7 +1,13 @@
+import uuid
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils.text import slugify
+from django.core.validators import FileExtensionValidator
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db.models.signals import pre_delete
+
 
 def translit_to_eng(s: str) -> str:
     d = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
@@ -91,7 +97,16 @@ class Game(models.Model):
     
     year_release = models.IntegerField(verbose_name="Год выпуска")
     is_stock = models.BooleanField(default=True, verbose_name="В наличии")
-    image = models.CharField(max_length=255, blank=True, verbose_name="Изображение")
+    image = models.ImageField(
+        upload_to="games/%Y/%m/%d/",
+        blank=True,
+        null=True,
+        verbose_name="Изображение",
+        default=None,
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'gif', 'webp'])
+        ]
+    )
     age_rating = models.CharField(max_length=10, verbose_name="Возрастной рейтинг")
     description = models.TextField(verbose_name="Описание")
     
@@ -125,6 +140,73 @@ class Game(models.Model):
         verbose_name = 'Игра'
         verbose_name_plural = 'Игры'
         ordering = ['-time_create']
+
+def upload_files_unique_name(instance, filename):
+    """Генерирует уникальное имя файла"""
+    original_name = filename
+    
+    # Разделяем имя и расширение
+    if '.' in original_name:
+        name_part = original_name[:original_name.rindex('.')]
+        ext_part = original_name[original_name.rindex('.'):]
+    else:
+        name_part = original_name
+        ext_part = ''
+
+    # Генерируем уникальный суффикс
+    suffix = str(uuid.uuid4())[:8]
+
+    # Создаем новое имя файла
+    new_filename = f"{name_part}_{suffix}{ext_part}"
+    
+    # Возвращаем путь для сохранения
+    return f"uploads_model/{new_filename}"
+
+class UploadFiles(models.Model):
+    file = models.FileField(
+        upload_to=upload_files_unique_name,
+        verbose_name="Файл",
+        validators=[
+            FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'pdf', 'txt', 'zip', 'rar'])
+        ]
+    )
+    description = models.CharField(
+        max_length=200, 
+        blank=True, 
+        verbose_name="Описание файла"
+    )
+    uploaded_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name="Время загрузки"
+    )
+    file_size = models.IntegerField(
+        verbose_name="Размер файла (байт)",
+        default=0
+    )
+    original_filename = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name="Оригинальное имя файла"
+    )
+
+    def __str__(self):
+        return f"Файл: {self.original_filename}"
+
+    def save(self, *args, **kwargs):
+        if self.file and not self.original_filename:
+            # Сохраняем оригинальное имя файла при первом сохранении
+            self.original_filename = self.file.name
+        
+        if self.file:
+            # Обновляем размер файла
+            self.file_size = self.file.size
+        
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Загруженный файл'
+        verbose_name_plural = 'Загруженные файлы'
+        ordering = ['-uploaded_at']
 
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
@@ -186,3 +268,31 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ['-date']
+
+
+
+@receiver(post_save, sender=Game)
+def create_upload_files_record(sender, instance, created, **kwargs):
+    """Автоматически создает запись в UploadFiles при загрузке изображения игры"""
+    if instance.image and instance.image.name:
+        # Проверяем, нет ли уже такой записи
+        if not UploadFiles.objects.filter(file=instance.image.name).exists():
+            UploadFiles.objects.create(
+                file=instance.image.name,  # Сохраняем путь к файлу
+                description=f'Изображение для игры: {instance.title}',
+                file_size=instance.image.size,
+                original_filename=instance.image.name.split('/')[-1]  # Только имя файла
+            )
+
+@receiver(pre_delete, sender=UploadFiles)
+def remove_file_from_games(sender, instance, **kwargs):
+    """При удалении файла из UploadFiles также удаляет его из связанных игр"""
+    if instance.file:
+        # Находим все игры, которые используют этот файл
+        games_with_file = Game.objects.filter(image=instance.file.name)
+        
+        for game in games_with_file:
+            # Удаляем изображение у игры
+            game.image.delete(save=False)  # Удаляем файл с диска
+            game.image = None  # Очищаем поле
+            game.save()

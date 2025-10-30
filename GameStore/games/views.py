@@ -1,32 +1,35 @@
 from django.http import HttpResponseNotFound, Http404
 from django.shortcuts import redirect, render, get_object_or_404
-from .models import Game, Review, Status, Genre, Tag
+from .models import Game, Review, Status, Genre, Tag, UploadFiles, Cart, CartItem 
 from django.contrib.auth.models import User
-from .forms import AddGameModelForm, UploadFileForm, handle_uploaded_file
+from .forms import AddGameModelForm, UploadFileForm
 from django.db import connection
-import os
 from django.conf import settings
-
 menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'Войти']
 
 def fill_database():
     # Если есть какие-то данные - удаляем их
     if Game.objects.exists() or Genre.objects.exists() or Tag.objects.exists():
-        #print("🗑️ Очищаем старые данные...")
-        #Review.objects.all().delete()
-        #Game.objects.all().delete()
-        #Tag.objects.all().delete()
-        #Genre.objects.all().delete()
-        #User.objects.filter(username='test_user').delete()
-        #print("✅ Старые данные удалены")
+        """print("🗑️ Очищаем старые данные...")
+        CartItem.objects.all().delete()
+        Cart.objects.all().delete()
+        Review.objects.all().delete()
+        Game.objects.all().delete()
+        UploadFiles.objects.all().delete()  # Добавляем очистку загруженных файлов
+        Tag.objects.all().delete()
+        Genre.objects.all().delete()
+        User.objects.filter(username='test_user').delete()
+        
+        # Сброс автоинкремента
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name IN ('games_game', 'games_genre', 'games_tag', 'games_review', 'games_cart', 'games_cartitem', 'games_uploadfiles', 'games_game_tags', 'games_game_genres')")
+        
+        print("✅ Старые данные удалены и автоинкремент сброшен")"""
         return
 
-    with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM sqlite_sequence WHERE name IN ('games_game', 'games_genre', 'games_tag', 'games_review', 'games_cart', 'games_cartitem', 'games_game_tags', 'games_game_genres')")
-        
-    print("✅ Старые данные удалены и автоинкремент сброшен")
+    print("🔄 Заполняем базу данных...")
 
-    # Создаем жанры (slug создастся автоматически через save())
+    # Создаем жанры
     genres_data = [
         {'name': 'Экшен'},
         {'name': 'Приключения'},
@@ -43,11 +46,11 @@ def fill_database():
     
     genres_dict = {}
     for genre_data in genres_data:
-        genre = Genre.objects.create(name=genre_data['name'])  # slug создастся автоматически
+        genre = Genre.objects.create(name=genre_data['name'])
         genres_dict[genre.name] = genre
         print(f"✅ Создан жанр: {genre.name} (slug: {genre.slug})")
 
-    # Создаем теги (slug создастся автоматически через save())
+    # Создаем теги
     tags_data = [
         {'name': 'Хит продаж'},
         {'name': 'Новинка'},
@@ -63,21 +66,30 @@ def fill_database():
     
     tags_dict = {}
     for tag_data in tags_data:
-        tag = Tag.objects.create(name=tag_data['name'])  # slug создастся автоматически
+        tag = Tag.objects.create(name=tag_data['name'])
         tags_dict[tag.name] = tag
         print(f"✅ Создан тег: {tag.name} (slug: {tag.slug})")
 
-    # Создаем тестового пользователя для отзывов
+    # Создаем тестового пользователя для отзывов и корзины
     test_user, created = User.objects.get_or_create(
         username='test_user',
-        defaults={'email': 'test@example.com', 'first_name': 'Тестовый', 'last_name': 'Пользователь'}
+        defaults={
+            'email': 'test@example.com', 
+            'first_name': 'Тестовый', 
+            'last_name': 'Пользователь'
+        }
     )
     if created:
         test_user.set_password('test123')
         test_user.save()
         print(f"✅ Создан тестовый пользователь: {test_user.username}")
 
-    # Данные игр (slug создастся автоматически через save())
+    # Создаем корзину для пользователя
+    cart, created = Cart.objects.get_or_create(user=test_user)
+    if created:
+        print(f"✅ Создана корзина для пользователя {test_user.username}")
+
+    # Данные игр (теперь без поля image - оно будет заполняться через админку)
     games_data = [
         {
             'title': 'Uncharted', 
@@ -85,7 +97,6 @@ def fill_database():
             'platform': 'PS3', 
             'year_release': 2007, 
             'is_stock': False, 
-            'image': 'uncharted_cover.jpg',
             'age_rating': '16+',
             'description': 'Приключенческий экшен от третьего лица, где вы играете за охотника за сокровищами Нейтана Дрейка.',
             'is_published': Status.PUBLISHED,
@@ -98,7 +109,6 @@ def fill_database():
             'platform': 'XBOX', 
             'year_release': 2015, 
             'is_stock': True, 
-            'image': 'the_witcher_3_cover.jpg',
             'age_rating': '18+',
             'description': 'Эпическая RPG в мире фэнтези, где вы Геральт из Ривии - ведьмак, охотящийся на монстров.',
             'is_published': Status.PUBLISHED,
@@ -111,7 +121,6 @@ def fill_database():
             'platform': 'PC', 
             'year_release': 2013, 
             'is_stock': True, 
-            'image': 'gta_5_cover.jpg',
             'age_rating': '18+',
             'description': 'Открытый мир криминального экшена с тремя протагонистами в городе Лос-Сантос.',
             'is_published': Status.PUBLISHED,
@@ -124,7 +133,6 @@ def fill_database():
             'platform': 'PS5', 
             'year_release': 2022, 
             'is_stock': True, 
-            'image': 'elden_ring_cover.jpg',
             'age_rating': '16+',
             'description': 'Фэнтезийная action-RPG с открытым миром от создателей Dark Souls.',
             'is_published': Status.PUBLISHED,
@@ -137,7 +145,6 @@ def fill_database():
             'platform': 'PS4', 
             'year_release': 2013, 
             'is_stock': True, 
-            'image': 'the_last_of_us_cover.jpg',
             'age_rating': '18+',
             'description': 'Постапокалиптическая история о выживании и отношениях между Джоэлом и Элли.',
             'is_published': Status.PUBLISHED,
@@ -150,7 +157,6 @@ def fill_database():
             'platform': 'PC', 
             'year_release': 2020, 
             'is_stock': True, 
-            'image': 'cyberpunk_cover.jpg',
             'age_rating': '18+',
             'description': 'RPG в киберпанк-мире будущего с открытым миром и нелинейным сюжетом.',
             'is_published': Status.PUBLISHED,
@@ -163,7 +169,6 @@ def fill_database():
             'platform': 'PS4', 
             'year_release': 2018, 
             'is_stock': True, 
-            'image': 'red_dead_cover.jpg',
             'age_rating': '18+',
             'description': 'Приключения в диком западе с глубоким сюжетом и открытым миром.',
             'is_published': Status.PUBLISHED,
@@ -176,7 +181,6 @@ def fill_database():
             'platform': 'PC', 
             'year_release': 2011, 
             'is_stock': True, 
-            'image': 'minecraft_cover.jpg',
             'age_rating': '7+',
             'description': 'Песочница с бесконечными возможностями для творчества и выживания.',
             'is_published': Status.PUBLISHED,
@@ -189,7 +193,6 @@ def fill_database():
             'platform': 'PS5', 
             'year_release': 2022, 
             'is_stock': True, 
-            'image': 'fifa_cover.jpg',
             'age_rating': '3+',
             'description': 'Футбольный симулятор с реалистичной графикой и геймплеем.',
             'is_published': Status.PUBLISHED,
@@ -202,7 +205,6 @@ def fill_database():
             'platform': 'PS5', 
             'year_release': 2023, 
             'is_stock': True, 
-            'image': 'resident_evil_cover.jpg',
             'age_rating': '18+',
             'description': 'Хоррор-экшен с элементами выживания и захватывающим сюжетом.',
             'is_published': Status.PUBLISHED,
@@ -211,14 +213,14 @@ def fill_database():
         },
     ]
 
-    # Создаем игры (slug создастся автоматически через save())
+    # Создаем игры
     games_dict = {}
     for game_data in games_data:
         # Извлекаем названия жанров и тегов
         genre_names = game_data.pop('genre_names', [])
         tag_names = game_data.pop('tag_names', [])
         
-        # Создаем игру (slug создастся автоматически)
+        # Создаем игру (image будет None - заполним через админку)
         game = Game.objects.create(**game_data)
         
         # Устанавливаем связи с жанрами
@@ -274,6 +276,18 @@ def fill_database():
             print(f"✅ Создан отзыв от {review.user.username} на {game.title}")
         else:
             print(f"❌ Игра '{game_title}' не найдена для отзыва")
+
+    # Создаем несколько тестовых загруженных файлов
+    try:
+        # Создаем запись о загруженном файле (без самого файла)
+        uploaded_file = UploadFiles.objects.create(
+            file='test_document.pdf',
+            description='Тестовый документ для демонстрации',
+            file_size=1024
+        )
+        print(f"✅ Создан тестовый загруженный файл: {uploaded_file.file.name}")
+    except Exception as e:
+        print(f"⚠️ Не удалось создать тестовый файл: {e}")
 
     print("🎮 База данных успешно заполнена!")
 
@@ -410,15 +424,16 @@ def page_not_found(request, exception):
 
 def add_game(request):
     if request.method == 'POST':
-        form = AddGameModelForm(request.POST)
+        # ДОБАВЛЯЕМ request.FILES для обработки изображений
+        form = AddGameModelForm(request.POST, request.FILES)
         if form.is_valid():
             try:
-                form.save()
+                # Сохраняем игру с изображением
+                game = form.save()
                 return redirect('catalog')
-                
             except Exception as e:
                 form.add_error(None, f'Ошибка при сохранении игры: {str(e)}')
-                print(f"Ошибка сохранения: {str(e)}")
+                print(f" Ошибка сохранения: {str(e)}")
         else:
             print("Форма содержит ошибки:")
             for field, errors in form.errors.items():
@@ -436,16 +451,27 @@ def add_game(request):
 def upload_file(request):
     upload_result = None
     error_message = None
+    
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             try:
+                # Проверяем размер файла
                 uploaded_file = request.FILES['file']
-                description = form.cleaned_data.get('description', '')
                 if uploaded_file.size > 10 * 1024 * 1024:
                     form.add_error('file', 'Файл слишком большой (максимум 10MB)')
                 else:
-                    upload_result = handle_uploaded_file(uploaded_file, description)   
+                    uploaded_file_obj = form.save()
+                    
+                    upload_result = {
+                        'original_name': uploaded_file_obj.file.name,
+                        'saved_name': uploaded_file_obj.file.name,
+                        'file_url': uploaded_file_obj.file.url,
+                        'file_size': uploaded_file_obj.file_size,
+                        'description': uploaded_file_obj.description,
+                        'db_id': uploaded_file_obj.id
+                    }
+                    
             except Exception as e:
                 error_message = f'Ошибка при загрузке файла: {str(e)}'
                 print(f"Ошибка загрузки файла: {str(e)}")
@@ -456,19 +482,8 @@ def upload_file(request):
     else:
         form = UploadFileForm()
     
-    # Получаем список уже загруженных файлов
-    uploaded_files = []
-    uploads_dir = os.path.join(settings.BASE_DIR, 'uploads')
-    if os.path.exists(uploads_dir):
-        for filename in os.listdir(uploads_dir):
-            file_path = os.path.join(uploads_dir, filename)
-            if os.path.isfile(file_path):
-                file_size = os.path.getsize(file_path)
-                uploaded_files.append({
-                    'name': filename,
-                    'size': file_size,
-                    'upload_time': os.path.getctime(file_path)
-                })
+    # Получаем список загруженных файлов ИЗ БД
+    uploaded_files = UploadFiles.objects.all().order_by('-uploaded_at')
     
     data = {
         'title': 'Загрузка файлов',

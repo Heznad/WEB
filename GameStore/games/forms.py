@@ -1,14 +1,13 @@
-import uuid
 from django import forms
-from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ValidationError
-from .models import Game
+from .models import Game, UploadFiles
 
 class AddGameModelForm(forms.ModelForm):
     class Meta:
         model = Game
         fields = ['title', 'price', 'platform', 'year_release', 'description', 
-                 'age_rating', 'is_stock', 'is_published']
+                 'age_rating', 'image', 'is_stock', 'is_published'] #Добавил поле image
+        
         widgets = {
             'title': forms.TextInput(attrs={
                 'class': 'form-input', 
@@ -33,7 +32,12 @@ class AddGameModelForm(forms.ModelForm):
                 'class': 'form-input',
                 'placeholder': '18+'
             }),
+            'image': forms.FileInput(attrs={ #Виджет для поля image
+                'class': 'form-file',
+                'accept': 'image/*'
+            }),
         }
+        
         labels = {
             'title': 'Название игры',
             'price': 'Цена (руб)',
@@ -41,18 +45,22 @@ class AddGameModelForm(forms.ModelForm):
             'year_release': 'Год выпуска',
             'description': 'Описание игры',
             'age_rating': 'Возрастной рейтинг',
+            'image': 'Изображение игры', #Заголовок для поля image
             'is_stock': 'В наличии',
             'is_published': 'Опубликовать сразу',
         }
-        error_messages = {
-            'title': {
-                'required': 'Название игры обязательно для заполнения',
-                'max_length': 'Название слишком длинное',
-            },
-            'price': {
-                'required': 'Укажите цену игры',
-            }
-        }
+
+    #Валидация поля image
+    def clean_image(self):
+        image = self.cleaned_data.get('image')
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                raise ValidationError('Размер изображения не должен превышать 5MB')
+            allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+            if image.content_type not in allowed_types:
+                raise ValidationError('Допустимы только изображения: JPEG, PNG, GIF, WebP')
+        
+        return image
 
     def clean_title(self):
         title = self.cleaned_data.get('title', '').strip()
@@ -83,48 +91,21 @@ class AddGameModelForm(forms.ModelForm):
             raise ValidationError('Год выпуска не может быть в будущем')
         return year
 
-class UploadFileForm(forms.Form):
-    file = forms.FileField(
-        label="Выберите файл для загрузки",
-        widget=forms.FileInput(attrs={
-            'class': 'form-file',
-            'accept': '.jpg,.jpeg,.png,.pdf,.txt,.zip,.rar'
-        }),
-        error_messages={
-            'required': 'Пожалуйста, выберите файл для загрузки'
+class UploadFileForm(forms.ModelForm):
+    class Meta:
+        model = UploadFiles
+        fields = ['file', 'description']
+        widgets = {
+            'file': forms.FileInput(attrs={
+                'class': 'form-file',
+                'accept': '.jpg,.jpeg,.png,.pdf,.txt,.zip,.rar'
+            }),
+            'description': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Необязательное описание файла...'
+            }),
         }
-    )
-    description = forms.CharField(
-        label="Описание файла",
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-input',
-            'placeholder': 'Необязательное описание файла...'
-        }),
-        max_length=100
-    )
-
-def handle_uploaded_file(f, description=""):
-    original_name = f.name
-    if '.' in original_name:
-        name_part = original_name[:original_name.rindex('.')]
-        ext_part = original_name[original_name.rindex('.'):]
-    else:
-        name_part = original_name
-        ext_part = ''
-    
-    # Генерируем уникальный суффикс
-    suffix = str(uuid.uuid4())[:8]
-    # Создаем новое имя файла
-    new_filename = f"{name_part}_{suffix}{ext_part}"
-    # Сохраняем файл
-    fs = FileSystemStorage(location='uploads/')
-    filename = fs.save(new_filename, f)
-    # Возвращаем информацию о файле
-    return {
-        'original_name': original_name,
-        'saved_name': filename,
-        'file_url': fs.url(filename),
-        'file_size': f.size,
-        'description': description
-    }    
+        labels = {
+            'file': 'Выберите файл для загрузки',
+            'description': 'Описание файла',
+        }

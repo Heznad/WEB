@@ -14,3 +14,4 @@ urlpatterns = [
     path('add-game/', views.add_game, name='add_game'),
     path('upload-file/', views.upload_file, name='upload_file'),
 ]
+
