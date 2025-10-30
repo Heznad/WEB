@@ -1,0 +1,199 @@
+/* GameStore Admin Custom Styles - Clean Red Theme */
+
+/* Основные цвета GameStore */
+:root {
+    --primary-red: #e62424;
+    --dark-red: #cc0000;
+    --light-bg: #f8f9fa;
+    --border-color: #ddd;
+    --text-dark: #333;
+    --text-light: #fff;
+    --success-green: #28a745;
+    --warning-orange: #ffc107;
+}
+
+/* Общие стили - минимальные изменения */
+body {
+    background: #f4f4f4;
+}
+
+/* Шапка админки */
+#header {
+    background: var(--primary-red);
+    color: var(--text-light);
+}
+
+#header a:link, #header a:visited {
+    color: var(--text-light);
+}
+
+#branding h1 {
+    color: var(--text-light);
+    font-weight: bold;
+}
+
+/* Заголовки блоков */
+.module h2, .module caption, .inline-group h2 {
+    background: var(--primary-red);
+    color: var(--text-light);
+}
+
+/* Кнопки - красные */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--primary-red);
+    color: white;
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: var(--dark-red);
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+    background: var(--success-green);
+}
+
+.button.default:hover, input[type=submit].default:hover {
+    background: #218838;
+}
+
+/* Хлебные крошки */
+div.breadcrumbs {
+    background: var(--primary-red);
+    color: var(--text-light);
+}
+
+div.breadcrumbs a {
+    color: var(--text-light);
+}
+
+div.breadcrumbs a:hover {
+    color: #f8f9fa;
+}
+
+/* Таблицы - минимальные изменения */
+#changelist .results th {
+    background: var(--primary-red);
+    color: var(--text-light);
+}
+
+/* Ссылки в таблицах - красные */
+#changelist .results td a:link,
+#changelist .results td a:visited {
+    color: var(--primary-red);
+    font-weight: bold;
+}
+
+#changelist .results td a:hover {
+    color: var(--dark-red);
+}
+
+/* Формы */
+label {
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+/* Поиск и фильтры */
+#changelist-filter h2 {
+    background: var(--primary-red);
+    color: var(--text-light);
+}
+
+/* Сообщения */
+.success {
+    background: var(--success-green);
+}
+
+.warning {
+    background: var(--warning-orange);
+}
+
+.error {
+    background: var(--primary-red);
+}
+
+/* Кастомные стили для GameStore */
+.calendar caption, .calendarbox h2 {
+    background: var(--primary-red);
+}
+
+/* Стили для действий */
+.object-tools a {
+    background: var(--primary-red);
+}
+
+.object-tools a:hover {
+    background: var(--dark-red);
+}
+
+/* Нав-глобал (твоя кастомная панель) */
+#nav-global {
+    background: var(--primary-red);
+    padding: 10px 0;
+    margin: -10px -10px 20px -10px;
+    border-bottom: 2px solid var(--dark-red);
+}
+
+/* Адаптивность */
+@media (max-width: 767px) {
+    #header {
+        padding: 10px;
+    }
+    
+    #branding h1 {
+        font-size: 1.2rem;
+    }
+}
+
+/* Стили для ссылок */
+a:link, a:visited {
+    color: var(--primary-red);
+}
+
+a:hover {
+    color: var(--dark-red);
+}
+
+/* Стили для пагинации */
+.paginator a:link, .paginator a:visited {
+    background: var(--primary-red);
+    color: white;
+}
+
+.paginator a:hover {
+    background: var(--dark-red);
+}
+
+/* ГЛАВНОЕ: Исправление видимости текста в таблицах */
+#changelist .results td {
+    color: #333 !important; /* Черный текст для читаемости */
+}
+
+#changelist .results td:first-child {
+    font-weight: bold;
+    color: #333 !important;
+}
+
+/* Ссылки в таблицах остаются красными */
+#changelist .results td a {
+    color: var(--primary-red) !important;
+    font-weight: bold;
+}
+
+#changelist .results td a:hover {
+    color: var(--dark-red) !important;
+}
+
+/* Для главной страницы админки */
+.dashboard .module table td {
+    color: #333 !important;
+}
+
+.dashboard .module table td a {
+    color: var(--primary-red) !important;
+    font-weight: bold;
+}
+
+.dashboard .module table td a:hover {
+    color: var(--dark-red) !important;
+}

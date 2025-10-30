@@ -1,6 +1,26 @@
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils.text import slugify
+
+def translit_to_eng(s: str) -> str:
+    d = {'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+         'е': 'e', 'ё': 'yo', 'ж': 'zh', 'з': 'z', 'и': 'i',
+         'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+         'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+         'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch',
+         'ш': 'sh', 'щ': 'shch', 'ь': '', 'ы': 'y', 'ъ': '',
+         'э': 'e', 'ю': 'yu', 'я': 'ya',
+         
+         'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D',
+         'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh', 'З': 'Z', 'И': 'I',
+         'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N',
+         'О': 'O', 'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T',
+         'У': 'U', 'Ф': 'F', 'Х': 'H', 'Ц': 'C', 'Ч': 'Ch',
+         'Ш': 'Sh', 'Щ': 'Shch', 'Ь': '', 'Ы': 'Y', 'Ъ': '',
+         'Э': 'E', 'Ю': 'Yu', 'Я': 'Ya'}
+    
+    return "".join(map(lambda x: d[x] if x in d else x, s))
 
 class Status(models.IntegerChoices):
     DRAFT = 0, 'Черновик'
@@ -22,12 +42,17 @@ class Genre(models.Model):
     
     def get_absolute_url(self):
         return reverse('catalog_by_genre', kwargs={'genre_slug': self.slug})
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            transliterated_name = translit_to_eng(self.name)
+            self.slug = slugify(transliterated_name)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
         ordering = ['name']
-
 
 class Tag(models.Model):
     name = models.CharField(max_length=100, db_index=True, verbose_name="Название тега")
@@ -38,6 +63,12 @@ class Tag(models.Model):
     
     def get_absolute_url(self):
         return reverse('catalog_by_tag', kwargs={'tag_slug': self.slug})
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            transliterated_name = translit_to_eng(self.name)
+            self.slug = slugify(transliterated_name)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Тег'
@@ -65,11 +96,10 @@ class Game(models.Model):
     description = models.TextField(verbose_name="Описание")
     
     genres = models.ManyToManyField(Genre, related_name='games', verbose_name="Жанры")
-
     tags = models.ManyToManyField(Tag, blank=True, related_name='games', verbose_name="Теги")
     
     is_published = models.BooleanField(
-        choices=Status.choices,
+        choices=tuple(map(lambda x: (bool(x[0]), x[1]), Status.choices)),
         default=Status.PUBLISHED,
         verbose_name="Статус"
     )
@@ -84,6 +114,12 @@ class Game(models.Model):
     
     def get_absolute_url(self):
         return reverse('game_detail', kwargs={'game_slug': self.slug})
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            transliterated_title = translit_to_eng(self.title)
+            self.slug = slugify(transliterated_title)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Игра'

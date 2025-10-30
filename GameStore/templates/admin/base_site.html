@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | GameStore Admin{% endblock %}
+
+{% block extrahead %}
+<link rel="icon" href="{% static 'images/favicon.png' %}" type="image/x-icon">
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">
+        <img src="{% static 'images/logo.jpg' %}" height="40px" alt="GameStore Logo" style="border-radius: 4px;">
+        GameStore - Панель администрирования
+    </a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+{% endblock %}
+
+{% block nav-global %}
+{% if user.is_authenticated %}
+<div style="background: #2c3e50; padding: 12px 0; margin: -10px -10px 0px -10px;">
+    <div style="max-width: 1200px; margin: 0 auto; color: white; font-size: 14px; text-align: center;">
+        🎮 Добро пожаловать в GameStore Admin! | 
+        <a href="/" style="color: white; margin-left: 10px; font-weight: bold; text-decoration: underline;">← Вернуться на сайт</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

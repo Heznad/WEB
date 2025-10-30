@@ -766,21 +766,23 @@ body {
 /* СТИЛИ ДЛЯ ТЕГОВ */
 
 /* Теги в боковом меню */
-.sidebar .genre-list .game-tag {
+.game-tag {
     color: #cccccc;
     text-decoration: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    display: block;
+    padding: 2px 2px;
+    font-size: small;
+    border-radius: 1px;
+    border: 1px solid #939292;
+    display: inline-block;
     transition: all 0.3s ease;
 }
 
-.sidebar .genre-list .game-tag:hover {
+.game-tag:hover {
     color: #ffffff;
     background-color: #333;
 }
 
-.sidebar .genre-list .game-tag.active {
+.game-tag.active {
     color: #ffffff;
     background-color: #ff0000;
     font-weight: bold;
@@ -790,13 +792,12 @@ body {
 .game-card .game-tag {
     display: inline-block;
     background-color: #333;
-    color: #ff0000;
+    color: #ffffff;
     padding: 4px 8px;
-    border-radius: 12px;
-    font-size: 0.8em;
+    font-size: 0.7em;
     margin-right: 5px;
     margin-bottom: 5px;
-    border: 1px solid #ff0000;
+    border: 1px solid #939292;
     text-decoration: none;
 }
 
@@ -809,16 +810,23 @@ body {
 .game-detail-page .game-tag {
     display: inline-block;
     background-color: #333;
-    color: #ff0000;
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 0.85em;
+    color: #ffffff;
+    padding: 3px 3px;
+    font-size: 0.7em;
     margin: 4px 8px 4px 0;
-    border: 1px solid #ff0000;
+    border: 1px solid #939292;
     text-decoration: none;
 }
 
 .game-detail-page .game-tag:hover {
     background-color: #ff0000;
     color: #ffffff;
+}
+
+.game-tag-list {
+    list-style: none;
+}
+
+.game-tag-list li {
+    margin-bottom: 8px;
 }

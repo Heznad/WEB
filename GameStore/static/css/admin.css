@@ -1,0 +1,163 @@
+/* GameStore Admin Custom Styles */
+
+/* Основные цвета GameStore */
+:root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --accent-color: #e74c3c;
+    --success-color: #27ae60;
+    --warning-color: #f39c12;
+}
+
+/* Шапка админки */
+#header {
+    background: var(--secondary-color);
+    color: white;
+}
+
+#header a:link, #header a:visited {
+    color: white;
+}
+
+#branding h1 {
+    color: white;
+    font-weight: bold;
+}
+
+/* Боковая панель */
+#content-related {
+    background: #f8f9fa;
+}
+
+.module h2, .module caption, .inline-group h2 {
+    background: var(--primary-color);
+}
+
+/* Кнопки */
+.button, input[type=submit], input[type=button], .submit-row input, a.button {
+    background: var(--primary-color);
+}
+
+.button:hover, input[type=submit]:hover, input[type=button]:hover {
+    background: var(--secondary-color);
+}
+
+.button.default, input[type=submit].default, .submit-row input.default {
+    background: var(--success-color);
+}
+
+.button.default:hover, input[type=submit].default:hover {
+    background: #219653;
+}
+
+/* Хлебные крошки */
+div.breadcrumbs {
+    background: var(--primary-color);
+    color: white;
+}
+
+div.breadcrumbs a {
+    color: white;
+}
+
+div.breadcrumbs a:hover {
+    color: #ecf0f1;
+}
+
+/* Таблицы и списки */
+#changelist .results table {
+    border: 1px solid #ddd;
+}
+
+#changelist .results th {
+    background: var(--secondary-color);
+    color: white;
+}
+
+#changelist .results tr.row1 {
+    background: #f9f9f9;
+}
+
+#changelist .results tr.row2 {
+    background: white;
+}
+
+/* Формы */
+.form-row {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+label {
+    font-weight: bold;
+    color: var(--secondary-color);
+}
+
+/* Поиск и фильтры */
+#changelist-search .quiet {
+    width: 100%;
+}
+
+#changelist-filter {
+    background: #f8f9fa;
+    border-left: 1px solid #ddd;
+}
+
+#changelist-filter h2 {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Сообщения */
+.success {
+    background: var(--success-color);
+}
+
+.warning {
+    background: var(--warning-color);
+}
+
+.error {
+    background: var(--accent-color);
+}
+
+/* Адаптивность */
+@media (max-width: 767px) {
+    #header {
+        padding: 10px;
+    }
+    
+    #branding h1 {
+        font-size: 18px;
+    }
+}
+
+/* Кастомные стили для GameStore */
+.selector {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+}
+
+.calendar caption, .calendarbox h2 {
+    background: var(--primary-color);
+}
+
+/* Стили для действий */
+.object-tools {
+    margin-bottom: 10px;
+}
+
+.object-tools a {
+    background: var(--primary-color);
+}
+
+.object-tools a:hover {
+    background: var(--secondary-color);
+}
+
+/* Исправление для раздела последних действий */
+#content-related .module {
+    background: #0080ff;
+    border: 1px solid #ddd;
+}
+

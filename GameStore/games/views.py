@@ -9,59 +9,60 @@ menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'В
 def fill_database():
     # Если есть какие-то данные - удаляем их
     if Game.objects.exists() or Genre.objects.exists() or Tag.objects.exists():
-        print("🗑️ Очищаем старые данные...")
-        Review.objects.all().delete()
-        Game.objects.all().delete()
-        Tag.objects.all().delete()
-        Genre.objects.all().delete()
-        User.objects.filter(username='test_user').delete()
-        print("✅ Старые данные удалены")
+        #print("🗑️ Очищаем старые данные...")
+        #Review.objects.all().delete()
+        #Game.objects.all().delete()
+        #Tag.objects.all().delete()
+        #Genre.objects.all().delete()
+        #User.objects.filter(username='test_user').delete()
+        #print("✅ Старые данные удалены")
+        return
 
     with connection.cursor() as cursor:
             cursor.execute("DELETE FROM sqlite_sequence WHERE name IN ('games_game', 'games_genre', 'games_tag', 'games_review', 'games_cart', 'games_cartitem', 'games_game_tags', 'games_game_genres')")
         
     print("✅ Старые данные удалены и автоинкремент сброшен")
 
-    # Создаем жанры
+    # Создаем жанры (slug создастся автоматически через save())
     genres_data = [
-        {'name': 'Экшен', 'slug': 'action'},
-        {'name': 'Приключения', 'slug': 'adventure'},
-        {'name': 'RPG', 'slug': 'rpg'},
-        {'name': 'Шутер', 'slug': 'shooter'},
-        {'name': 'Фэнтези', 'slug': 'fantasy'},
-        {'name': 'Открытый мир', 'slug': 'open-world'},
-        {'name': 'Хоррор', 'slug': 'horror'},
-        {'name': 'Спорт', 'slug': 'sport'},
-        {'name': 'Симулятор', 'slug': 'simulator'},
-        {'name': 'Выживание', 'slug': 'survival'},
-        {'name': 'Песочница', 'slug': 'sandbox'},
+        {'name': 'Экшен'},
+        {'name': 'Приключения'},
+        {'name': 'RPG'},
+        {'name': 'Шутер'},
+        {'name': 'Фэнтези'},
+        {'name': 'Открытый мир'},
+        {'name': 'Хоррор'},
+        {'name': 'Спорт'},
+        {'name': 'Симулятор'},
+        {'name': 'Выживание'},
+        {'name': 'Песочница'},
     ]
     
     genres_dict = {}
     for genre_data in genres_data:
-        genre = Genre.objects.create(**genre_data)
+        genre = Genre.objects.create(name=genre_data['name'])  # slug создастся автоматически
         genres_dict[genre.name] = genre
-        print(f"✅ Создан жанр: {genre.name}")
+        print(f"✅ Создан жанр: {genre.name} (slug: {genre.slug})")
 
-    # СОЗДАЕМ ТЕГИ
+    # Создаем теги (slug создастся автоматически через save())
     tags_data = [
-        {'name': 'Хит продаж', 'slug': 'bestseller'},
-        {'name': 'Новинка', 'slug': 'new'},
-        {'name': 'Со скидкой', 'slug': 'discount'},
-        {'name': 'Распродажа', 'slug': 'sale'},
-        {'name': 'Мультиплеер', 'slug': 'multiplayer'},
-        {'name': 'Кооператив', 'slug': 'coop'},
-        {'name': 'Одиночная', 'slug': 'singleplayer'},
-        {'name': 'С прокачкой', 'slug': 'leveling'},
-        {'name': 'С крафтом', 'slug': 'crafting'},
-        {'name': 'Атмосферная', 'slug': 'atmospheric'},
+        {'name': 'Хит продаж'},
+        {'name': 'Новинка'},
+        {'name': 'Со скидкой'},
+        {'name': 'Распродажа'},
+        {'name': 'Мультиплеер'},
+        {'name': 'Кооператив'},
+        {'name': 'Одиночная'},
+        {'name': 'С прокачкой'},
+        {'name': 'С крафтом'},
+        {'name': 'Атмосферная'},
     ]
     
     tags_dict = {}
     for tag_data in tags_data:
-        tag = Tag.objects.create(**tag_data)
+        tag = Tag.objects.create(name=tag_data['name'])  # slug создастся автоматически
         tags_dict[tag.name] = tag
-        print(f"✅ Создан тег: {tag.name}")
+        print(f"✅ Создан тег: {tag.name} (slug: {tag.slug})")
 
     # Создаем тестового пользователя для отзывов
     test_user, created = User.objects.get_or_create(
@@ -73,7 +74,7 @@ def fill_database():
         test_user.save()
         print(f"✅ Создан тестовый пользователь: {test_user.username}")
 
-    # Данные игр с жанрами и тегами
+    # Данные игр (slug создастся автоматически через save())
     games_data = [
         {
             'title': 'Uncharted', 
@@ -203,21 +204,18 @@ def fill_database():
             'description': 'Хоррор-экшен с элементами выживания и захватывающим сюжетом.',
             'is_published': Status.PUBLISHED,
             'genre_names': ['Хоррор', 'Экшен', 'Выживание'],
-            'tag_names': ['Атмосферная', 'Одиночная', 'Страшная']
+            'tag_names': ['Атмосферная', 'Одиночная']
         },
     ]
 
-    # Создаем игры и устанавливаем связи с жанрами и тегами
+    # Создаем игры (slug создастся автоматически через save())
     games_dict = {}
     for game_data in games_data:
         # Извлекаем названия жанров и тегов
         genre_names = game_data.pop('genre_names', [])
         tag_names = game_data.pop('tag_names', [])
         
-        # Создаем игру
-        from django.utils.text import slugify
-        game_data['slug'] = slugify(game_data['title'])
-        
+        # Создаем игру (slug создастся автоматически)
         game = Game.objects.create(**game_data)
         
         # Устанавливаем связи с жанрами
@@ -233,7 +231,7 @@ def fill_database():
                 game.tags.add(tag)
         
         games_dict[game.title] = game
-        print(f"✅ Создана игра: {game.title} с жанрами: {', '.join(genre_names)} и тегами: {', '.join(tag_names)}")
+        print(f"✅ Создана игра: {game.title} (slug: {game.slug}) с жанрами: {', '.join(genre_names)} и тегами: {', '.join(tag_names)}")
 
     # Создаем отзывы
     reviews_data = [
