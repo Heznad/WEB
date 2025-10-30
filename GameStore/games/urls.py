@@ -11,5 +11,5 @@ urlpatterns = [
     path('reviews/', views.reviews, name='reviews'),
     path('login/', views.login, name='login'),
     path('register/', views.register, name='register'),
-    path('add-game/form/', views.add_game_form, name='add_game_form'),
+    path('add-game/', views.add_game, name='add_game'),
 ]

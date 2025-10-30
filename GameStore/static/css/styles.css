@@ -881,6 +881,8 @@ body {
     border-radius: 5px;
     font-size: 16px;
     transition: border-color 0.3s;
+    color: #333; /* ЧЕРНЫЙ текст всегда */
+    background: white; /* БЕЛЫЙ фон всегда */
 }
 
 .form-input:focus,
@@ -901,7 +903,7 @@ body {
     margin-right: 10px;
 }
 
-/* Стили для ошибок */
+/* Стили для ошибок - ТОЛЬКО границы становятся красными */
 .form-error {
     background: #ffe6e6;
     border: 1px solid #e62424;
@@ -919,13 +921,22 @@ body {
 .error-message {
     display: block;
     color: #e62424;
+    font-weight: bold;
 }
 
+/* При ошибках меняем ТОЛЬКО границу, текст остается черным */
 .has-error .form-input,
 .has-error .form-select,
 .has-error .form-textarea {
     border-color: #e62424;
-    background: #fff6f6;
+    background: #fff; /* Белый фон остается */
+    color: #333; /* Черный текст остается */
+}
+
+/* Убедимся, что placeholder тоже виден */
+.has-error .form-input::placeholder,
+.has-error .form-textarea::placeholder {
+    color: #999; /* Серый placeholder */
 }
 
 .help-text {
@@ -970,5 +981,22 @@ body {
 
 .cancel-btn:hover {
     background: #545b62;
+    color: white;
+}
+
+/* Стили для множественного выбора */
+.form-select[multiple] {
+    height: 120px;
+}
+
+/* Убедимся, что опции в select видны */
+.form-select option {
+    color: #333;
+    background: white;
+}
+
+/* Для выбранных опций */
+.form-select option:checked {
+    background: #e62424;
     color: white;
 }

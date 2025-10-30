@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound, Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Game, Review, Status, Genre, Tag
 from django.contrib.auth.models import User
+from .forms import AddGameModelForm
 from django.db import connection
 
 menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'Войти']
@@ -405,28 +406,26 @@ def register(request):
 def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
 
-from .forms import AddGameForm  # Добавьте этот импорт в начало файла
-
-def add_game_form(request):
+def add_game(request):
     if request.method == 'POST':
-        form = AddGameForm(request.POST)
+        form = AddGameModelForm(request.POST)
         if form.is_valid():
-            try:             
-                print(form.cleaned_data)
-                return redirect('catalog')              
+            try:
+                form.save()
+                return redirect('catalog')
+                
             except Exception as e:
                 form.add_error(None, f'Ошибка при сохранении игры: {str(e)}')
-                print(f" Ошибка сохранения: {str(e)}")
+                print(f"Ошибка сохранения: {str(e)}")
         else:
-            print(" Форма содержит ошибки:")
+            print("Форма содержит ошибки:")
             for field, errors in form.errors.items():
                 print(f"   {field}: {', '.join(errors)}")
     else:
-        # GET запрос - показываем пустую форму
-        form = AddGameForm()
+        form = AddGameModelForm()
     
     data = {
-        'title': 'Добавить игру (Form)',
+        'title': 'Добавить игру',
         'form': form,
         'menu': menu,
     }
