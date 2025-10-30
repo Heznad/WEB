@@ -2,8 +2,10 @@ from django.http import HttpResponseNotFound, Http404
 from django.shortcuts import redirect, render, get_object_or_404
 from .models import Game, Review, Status, Genre, Tag
 from django.contrib.auth.models import User
-from .forms import AddGameModelForm
+from .forms import AddGameModelForm, UploadFileForm, handle_uploaded_file
 from django.db import connection
+import os
+from django.conf import settings
 
 menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'Войти']
 
@@ -430,3 +432,50 @@ def add_game(request):
         'menu': menu,
     }
     return render(request, 'games/add_game.html', context=data)
+
+def upload_file(request):
+    upload_result = None
+    error_message = None
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                uploaded_file = request.FILES['file']
+                description = form.cleaned_data.get('description', '')
+                if uploaded_file.size > 10 * 1024 * 1024:
+                    form.add_error('file', 'Файл слишком большой (максимум 10MB)')
+                else:
+                    upload_result = handle_uploaded_file(uploaded_file, description)   
+            except Exception as e:
+                error_message = f'Ошибка при загрузке файла: {str(e)}'
+                print(f"Ошибка загрузки файла: {str(e)}")
+        else:
+            print("Форма загрузки файла содержит ошибки:")
+            for field, errors in form.errors.items():
+                print(f"   {field}: {', '.join(errors)}")
+    else:
+        form = UploadFileForm()
+    
+    # Получаем список уже загруженных файлов
+    uploaded_files = []
+    uploads_dir = os.path.join(settings.BASE_DIR, 'uploads')
+    if os.path.exists(uploads_dir):
+        for filename in os.listdir(uploads_dir):
+            file_path = os.path.join(uploads_dir, filename)
+            if os.path.isfile(file_path):
+                file_size = os.path.getsize(file_path)
+                uploaded_files.append({
+                    'name': filename,
+                    'size': file_size,
+                    'upload_time': os.path.getctime(file_path)
+                })
+    
+    data = {
+        'title': 'Загрузка файлов',
+        'form': form,
+        'menu': menu,
+        'upload_result': upload_result,
+        'error_message': error_message,
+        'uploaded_files': uploaded_files,
+    }
+    return render(request, 'games/upload_file.html', context=data)

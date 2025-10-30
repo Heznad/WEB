@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-page">
+    <h1 class="page-title">{{title|upper}}</h1>
+    <div class="form-container">
+        <div class="upload-section">
+            <h2> Загрузить файл</h2>
+            <form method="post" enctype="multipart/form-data" class="upload-form">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                <div class="form-error global-errors">
+                    {% for error in form.non_field_errors %}
+                    <p class="error-message"> {{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                {% if error_message %}
+                <div class="form-error global-errors">
+                    <p class="error-message"> {{ error_message }}</p>
+                </div>
+                {% endif %}
+                <div class="form-fields">
+                    {% for field in form %}
+                    <div class="form-group {% if field.errors %}has-error{% endif %}">
+                        <label class="form-label" for="{{ field.id_for_label }}">
+                            {{ field.label }}:
+                            {% if field.field.required %}<span class="required">*</span>{% endif %}
+                        </label> 
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="field-errors">
+                            {% for error in field.errors %}
+                            <span class="error-message">⚠ {{ error }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn">📤 Загрузить файл</button>
+                    <a href="{% url 'catalog' %}" class="cancel-btn">Отмена</a>
+                </div>
+            </form>
+        </div>
+        {% if upload_result %}
+        <div class="upload-success">
+            <h3> Файл успешно загружен!</h3>
+            <div class="file-info">
+                <p><strong>Оригинальное имя:</strong> {{ upload_result.original_name }}</p>
+                <p><strong>Сохраненное имя:</strong> {{ upload_result.saved_name }}</p>
+                <p><strong>Размер:</strong> {{ upload_result.file_size }} байт</p>
+                {% if upload_result.description %}
+                <p><strong>Описание:</strong> {{ upload_result.description }}</p>
+                {% endif %}
+                <p><strong>URL:</strong> <code>{{ upload_result.file_url }}</code></p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% if uploaded_files %}
+    <div class="uploaded-files-section">
+        <h2>📂 Загруженные файлы</h2>
+        <div class="files-list">
+            {% for file in uploaded_files %}
+            <div class="file-item">
+                <div class="file-name">{{ file.name }}</div>
+                <div class="file-size">{{ file.size|filesizeformat }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

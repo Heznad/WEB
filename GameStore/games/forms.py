@@ -1,6 +1,7 @@
+import uuid
 from django import forms
+from django.core.files.storage import FileSystemStorage
 from django.core.exceptions import ValidationError
-from django.core.validators import MinLengthValidator, MaxLengthValidator
 from .models import Game
 
 class AddGameModelForm(forms.ModelForm):
@@ -81,3 +82,49 @@ class AddGameModelForm(forms.ModelForm):
         if year > 2024:
             raise ValidationError('Год выпуска не может быть в будущем')
         return year
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField(
+        label="Выберите файл для загрузки",
+        widget=forms.FileInput(attrs={
+            'class': 'form-file',
+            'accept': '.jpg,.jpeg,.png,.pdf,.txt,.zip,.rar'
+        }),
+        error_messages={
+            'required': 'Пожалуйста, выберите файл для загрузки'
+        }
+    )
+    description = forms.CharField(
+        label="Описание файла",
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-input',
+            'placeholder': 'Необязательное описание файла...'
+        }),
+        max_length=100
+    )
+
+def handle_uploaded_file(f, description=""):
+    original_name = f.name
+    if '.' in original_name:
+        name_part = original_name[:original_name.rindex('.')]
+        ext_part = original_name[original_name.rindex('.'):]
+    else:
+        name_part = original_name
+        ext_part = ''
+    
+    # Генерируем уникальный суффикс
+    suffix = str(uuid.uuid4())[:8]
+    # Создаем новое имя файла
+    new_filename = f"{name_part}_{suffix}{ext_part}"
+    # Сохраняем файл
+    fs = FileSystemStorage(location='uploads/')
+    filename = fs.save(new_filename, f)
+    # Возвращаем информацию о файле
+    return {
+        'original_name': original_name,
+        'saved_name': filename,
+        'file_url': fs.url(filename),
+        'file_size': f.size,
+        'description': description
+    }    
