@@ -8,7 +8,7 @@
         <div class="review-card">
             <div class="review-header">
                 <div class="review-author">
-                <strong>{{review.user.username}}</strong>
+                    <strong>{{review.user.username}}</strong>
                     <span class="review-date">{{review.date}}</span>
                 </div>
                 <div class="review-rating">
@@ -30,7 +30,40 @@
                 {{review.text|linebreaks}} 
             </div>
         </div>
+        {% empty %}
+        <div class="no-reviews">
+            <p>Пока нет отзывов. Будьте первым!</p>
+        </div>
         {% endfor %}
     </div>
+
+    <!-- Пагинация для отзывов -->
+    {% if page_obj.has_other_pages %}
+    <nav class="list-pages">
+        <ul>
+            {% if page_obj.has_previous %}
+            <li class="page-num">
+                <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+            </li>
+            {% endif %}
+            
+            {% for p in paginator.page_range %}
+                {% if page_obj.number == p %}
+                <li class="page-num page-num-selected">{{ p }}</li>
+                {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                <li class="page-num">
+                    <a href="?page={{ p }}">{{ p }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if page_obj.has_next %}
+            <li class="page-num">
+                <a href="?page={{ page_obj.next_page_number }}">Вперед</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
 </div>
 {% endblock %}

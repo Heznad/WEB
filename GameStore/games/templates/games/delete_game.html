@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="main-content">
+    <div class="delete-confirmation">
+        <h1 class="page-title">УДАЛЕНИЕ: {{ game.title|upper }}</h1>
+        
+        <div class="warning-message">
+            <h2>⚠️ Вы уверены, что хотите удалить эту игру?</h2>
+            <div class="game-info">
+                <h3>{{ game.title }}</h3>
+                <p><strong>Платформа:</strong> {{ game.platform }}</p>
+                <p><strong>Год выпуска:</strong> {{ game.year_release }}</p>
+                <p><strong>Цена:</strong> {{ game.price|floatformat:2 }} ₽</p>
+            </div>
+            <p class="warning-text">Это действие нельзя отменить!</p>
+        </div>
+        
+        <form method="post" class="delete-form">
+            {% csrf_token %}
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-danger">Да, удалить</button>
+                <a href="{% url 'catalog' %}" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

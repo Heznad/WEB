@@ -5,7 +5,12 @@ from django.contrib.auth.models import User
 from .forms import AddGameModelForm, UploadFileForm
 from django.db import connection
 from django.conf import settings
-menu = ['Главная', 'Каталог', 'Отзывы', 'О сайте', 'Войти']
+
+from django.views.generic import ListView, DetailView, TemplateView, FormView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+
+# Импортируем наш миксин и menu
+from .utils import DataMixin, menu
 
 def fill_database():
     # Если есть какие-то данные - удаляем их
@@ -330,167 +335,185 @@ about_db = {
     }
 }
 
-def index(request):
-    # Заполняем БД при первом обращении
-    fill_database()
+class GamesHome(DataMixin, ListView):
+    template_name = 'games/index.html'
+    context_object_name = 'games'
+    title_page = 'Главная страница'
     
-    games_from_db = Game.published.in_stock()
+    def get_queryset(self):
+        fill_database()
+        return Game.published.in_stock()
     
-    data = {
-        'title':'Главная страница',
-        'menu':menu,
-        'games': games_from_db,
-    }
-    return render(request, 'games/index.html', context=data)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
 
-def about(request):
-    data = {
-        'title': about_db['title'],
-        'about': about_db,
-        'menu': menu,
-    }
-    return render(request, 'games/about.html', context=data)
-
-def reviews(request):
-    reviews_from_db = Review.objects.filter(is_published=True)
+class GamesCatalog(DataMixin, ListView):
+    template_name = 'games/catalog.html'
+    context_object_name = 'games'
+    title_page = 'Каталог'
     
-    data = {
-        'title': 'Отзывы',
-        'reviews': reviews_from_db,
-        'menu': menu,
-    }
-    return render(request, 'games/reviews.html', context=data)
-
-def catalog(request):
-    games_from_db = Game.published.all()
+    def get_queryset(self):
+        return Game.published.all()
     
-    data = {
-        'title': 'Каталог',
-        'menu': menu,
-        'games': games_from_db,
-    }
-    return render(request, 'games/catalog.html', context=data)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
 
-def catalog_by_genre(request, genre_slug):
-    genre = get_object_or_404(Genre, slug=genre_slug)
-    filtered_games = Game.published.filter(genres=genre)
+class GameDetail(DataMixin, DetailView):
+    model = Game
+    template_name = 'games/game_detail.html'
+    context_object_name = 'game'
+    slug_url_kwarg = 'game_slug'
     
-    data = {
-        'title': f'Каталог - {genre.name}',
-        'games': filtered_games,
-        'menu': menu,
-        'current_genre': genre_slug,
-    }
-    return render(request, 'games/catalog.html', context=data)
-
-def catalog_game_slug(request, game_slug):
-    game = get_object_or_404(Game.published, slug=game_slug)
+    def get_queryset(self):
+        return Game.published.all()
     
-    data = {
-        'title': game.title,
-        'game': game,
-        'menu': menu,
-    }
-    return render(request, 'games/game_detail.html', context=data)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context, title=context['game'].title)
 
-def catalog_by_tag(request, tag_slug):
-    tag = get_object_or_404(Tag, slug=tag_slug)
-    filtered_games = Game.published.filter(tags=tag)
+class GamesByGenre(DataMixin, ListView):
+    template_name = 'games/catalog.html'
+    context_object_name = 'games'
+    allow_empty = False
     
-    data = {
-        'title': f'Каталог - Тег: {tag.name}',
-        'games': filtered_games,
-        'menu': menu,
-        'current_tag': tag_slug,
-    }
-    return render(request, 'games/catalog.html', context=data)
+    def get_queryset(self):
+        return Game.published.filter(genres__slug=self.kwargs['genre_slug'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        genre = get_object_or_404(Genre, slug=self.kwargs['genre_slug'])
+        return self.get_mixin_context(context, title=f'Каталог - {genre.name}')
 
-def login(request):
-    data = {
-        'title': 'Вход',
-        'menu': menu,
-    }
-    return render(request, 'games/login.html', context=data)
+class GamesByTag(DataMixin, ListView):
+    template_name = 'games/catalog.html'
+    context_object_name = 'games'
+    allow_empty = False
+    
+    def get_queryset(self):
+        return Game.published.filter(tags__slug=self.kwargs['tag_slug'])
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
+        return self.get_mixin_context(context, title=f'Каталог - Тег: {tag.name}')
 
-def register(request):
-    data = {
-        'title': 'Регистрация',
-        'menu': menu,
-    }
-    return render(request, 'games/register.html', context=data)
+class AboutView(DataMixin, TemplateView):
+    template_name = 'games/about.html'
+    title_page = 'О нашем магазине'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['about'] = about_db
+        return self.get_mixin_context(context)
+
+class ReviewsView(DataMixin, ListView):
+    template_name = 'games/reviews.html'
+    context_object_name = 'reviews'
+    title_page = 'Отзывы'
+    
+    def get_queryset(self):
+        return Review.objects.filter(is_published=True)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
+
+class AddGameView(DataMixin, CreateView):
+    form_class = AddGameModelForm
+    template_name = 'games/add_game.html'
+    success_url = reverse_lazy('catalog')
+    title_page = 'Добавить игру'
+    
+    def form_valid(self, form):
+        return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
+
+class UpdateGameView(DataMixin, UpdateView):
+    model = Game
+    form_class = AddGameModelForm
+    template_name = 'games/add_game.html'
+    success_url = reverse_lazy('catalog')
+    slug_url_kwarg = 'game_slug'
+    title_page = 'Редактирование игры'
+    
+    def get_queryset(self):
+        return Game.published.all()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context, title=f'Редактирование: {self.object.title}')
+
+class DeleteGameView(DataMixin, DeleteView):
+    model = Game
+    template_name = 'games/delete_game.html'
+    success_url = reverse_lazy('catalog')
+    slug_url_kwarg = 'game_slug'
+    context_object_name = 'game'
+    title_page = 'Удаление игры'
+    
+    def get_queryset(self):
+        return Game.published.all()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context, title=f'Удаление: {self.object.title}')
+
+class UploadFileView(DataMixin, FormView):
+    form_class = UploadFileForm
+    template_name = 'games/upload_file.html'
+    success_url = reverse_lazy('upload_file')
+    title_page = 'Загрузка файлов'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['uploaded_files'] = UploadFiles.objects.all().order_by('-uploaded_at')
+        return self.get_mixin_context(context)
+    
+    def form_valid(self, form):
+        try:
+            uploaded_file = self.request.FILES['file']
+            if uploaded_file.size > 10 * 1024 * 1024:
+                form.add_error('file', 'Файл слишком большой (максимум 10MB)')
+                return self.form_invalid(form)
+            
+            uploaded_file_obj = form.save()
+            
+            # Добавляем результат в extra_context
+            self.extra_context['upload_result'] = {
+                'original_name': uploaded_file_obj.file.name,
+                'saved_name': uploaded_file_obj.file.name,
+                'file_url': uploaded_file_obj.file.url,
+                'file_size': uploaded_file_obj.file_size,
+                'description': uploaded_file_obj.description,
+                'db_id': uploaded_file_obj.id
+            }
+            
+        except Exception as e:
+            form.add_error(None, f'Ошибка при загрузке файла: {str(e)}')
+            return self.form_invalid(form)
+        
+        return super().form_valid(form)
+
+class LoginView(DataMixin, TemplateView):
+    template_name = 'games/login.html'
+    title_page = 'Вход'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
+
+class RegisterView(DataMixin, TemplateView):
+    template_name = 'games/register.html'
+    title_page = 'Регистрация'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
 
 def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')
-
-def add_game(request):
-    if request.method == 'POST':
-        # ДОБАВЛЯЕМ request.FILES для обработки изображений
-        form = AddGameModelForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                # Сохраняем игру с изображением
-                game = form.save()
-                return redirect('catalog')
-            except Exception as e:
-                form.add_error(None, f'Ошибка при сохранении игры: {str(e)}')
-                print(f" Ошибка сохранения: {str(e)}")
-        else:
-            print("Форма содержит ошибки:")
-            for field, errors in form.errors.items():
-                print(f"   {field}: {', '.join(errors)}")
-    else:
-        form = AddGameModelForm()
-    
-    data = {
-        'title': 'Добавить игру',
-        'form': form,
-        'menu': menu,
-    }
-    return render(request, 'games/add_game.html', context=data)
-
-def upload_file(request):
-    upload_result = None
-    error_message = None
-    
-    if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
-        if form.is_valid():
-            try:
-                # Проверяем размер файла
-                uploaded_file = request.FILES['file']
-                if uploaded_file.size > 10 * 1024 * 1024:
-                    form.add_error('file', 'Файл слишком большой (максимум 10MB)')
-                else:
-                    uploaded_file_obj = form.save()
-                    
-                    upload_result = {
-                        'original_name': uploaded_file_obj.file.name,
-                        'saved_name': uploaded_file_obj.file.name,
-                        'file_url': uploaded_file_obj.file.url,
-                        'file_size': uploaded_file_obj.file_size,
-                        'description': uploaded_file_obj.description,
-                        'db_id': uploaded_file_obj.id
-                    }
-                    
-            except Exception as e:
-                error_message = f'Ошибка при загрузке файла: {str(e)}'
-                print(f"Ошибка загрузки файла: {str(e)}")
-        else:
-            print("Форма загрузки файла содержит ошибки:")
-            for field, errors in form.errors.items():
-                print(f"   {field}: {', '.join(errors)}")
-    else:
-        form = UploadFileForm()
-    
-    # Получаем список загруженных файлов ИЗ БД
-    uploaded_files = UploadFiles.objects.all().order_by('-uploaded_at')
-    
-    data = {
-        'title': 'Загрузка файлов',
-        'form': form,
-        'menu': menu,
-        'upload_result': upload_result,
-        'error_message': error_message,
-        'uploaded_files': uploaded_files,
-    }
-    return render(request, 'games/upload_file.html', context=data)

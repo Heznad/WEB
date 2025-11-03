@@ -14,11 +14,10 @@
             </div>
             <nav class="navbar">
                 <p class="menu">
-                    <a href="{% url 'home' %}" class="menu-link">Главная</a> |
-                    <a href="{% url 'catalog' %}" class="menu-link">Каталог</a> |
-                    <a href="{% url 'reviews' %}" class="menu-link">Отзывы</a> |
-                    <a href="{% url 'about' %}" class="menu-link">О сайте</a> |
-                    <a href="{% url 'login' %}" class="menu-link">Войти</a>
+                    {% for item in menu %}
+                        <a href="{% url item.url_name %}" class="menu-link">{{ item.title }}</a>
+                        {% if not forloop.last %} | {% endif %}
+                    {% endfor %}
                 </p>
             </nav>
             <div class="header-right">
@@ -29,8 +28,6 @@
             </div>
         </div>
         
-        
-
         {% block content%} {% endblock %}
     </div>
 
