@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'games.apps.GamesConfig',
+    "users.apps.UsersConfig",
 ]
 
 MIDDLEWARE = [
@@ -65,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'users.context_processors.get_menu_context',
             ],
         },
     },
@@ -132,3 +134,28 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Настройки авторизации
+LOGIN_REDIRECT_URL = 'home'  # куда перенаправлять после успешного входа
+LOGIN_URL = 'users:login'    # страница авторизации
+LOGOUT_REDIRECT_URL = 'home' # куда перенаправлять после выхода
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # стандартный бэкенд по логину
+    'users.authentication.EmailAuthBackend',      # наш бэкенд по email
+]
+
+# Для реальной отправки писем раскомментируйте и настройте:
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.yandex.ru'
+EMAIL_PORT = 587 #Правильный порт для Yandex
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'heznad@yandex.ru'
+EMAIL_HOST_PASSWORD = 'hxrxfjxpfdqidpqe'
+DEFAULT_FROM_EMAIL = 'GameStore <heznad@yandex.ru>'
+
+# Email encoding settings
+EMAIL_USE_LOCALTIME = True
+
+# Настройки для сброса пароля
+PASSWORD_RESET_TIMEOUT = 3600  # Время жизни ссылки сброса пароля (1 час)

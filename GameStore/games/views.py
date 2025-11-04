@@ -9,8 +9,10 @@ from django.conf import settings
 from django.views.generic import ListView, DetailView, TemplateView, FormView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 
-# Импортируем наш миксин и menu
-from .utils import DataMixin, menu
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+# Импортируем наш миксин
+from .utils import DataMixin
 
 def fill_database():
     # Если есть какие-то данные - удаляем их
@@ -399,7 +401,7 @@ class GamesByTag(DataMixin, ListView):
         tag = get_object_or_404(Tag, slug=self.kwargs['tag_slug'])
         return self.get_mixin_context(context, title=f'Каталог - Тег: {tag.name}')
 
-class AboutView(DataMixin, TemplateView):
+class AboutView(LoginRequiredMixin, DataMixin, TemplateView):
     template_name = 'games/about.html'
     title_page = 'О нашем магазине'
     
@@ -433,7 +435,7 @@ class AddGameView(DataMixin, CreateView):
         context = super().get_context_data(**kwargs)
         return self.get_mixin_context(context)
 
-class UpdateGameView(DataMixin, UpdateView):
+class UpdateGameView(LoginRequiredMixin,DataMixin, UpdateView):
     model = Game
     form_class = AddGameModelForm
     template_name = 'games/add_game.html'
@@ -448,7 +450,7 @@ class UpdateGameView(DataMixin, UpdateView):
         context = super().get_context_data(**kwargs)
         return self.get_mixin_context(context, title=f'Редактирование: {self.object.title}')
 
-class DeleteGameView(DataMixin, DeleteView):
+class DeleteGameView(LoginRequiredMixin,DataMixin, DeleteView):
     model = Game
     template_name = 'games/delete_game.html'
     success_url = reverse_lazy('catalog')
@@ -498,22 +500,6 @@ class UploadFileView(DataMixin, FormView):
             return self.form_invalid(form)
         
         return super().form_valid(form)
-
-class LoginView(DataMixin, TemplateView):
-    template_name = 'games/login.html'
-    title_page = 'Вход'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return self.get_mixin_context(context)
-
-class RegisterView(DataMixin, TemplateView):
-    template_name = 'games/register.html'
-    title_page = 'Регистрация'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return self.get_mixin_context(context)
 
 def page_not_found(request, exception):
     return HttpResponseNotFound('<h1>Страница не найдена</h1>')

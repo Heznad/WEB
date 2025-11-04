@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="profile-page">
+    <h1 class="page-title">{{ title|upper }}</h1>
+    
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <div class="avatar-placeholder">
+                    {{ user_profile.username|first|upper }}
+                </div>
+            </div>
+            <div class="profile-info">
+                <h2 class="profile-username">{{ user_profile.username }}</h2>
+                <p class="profile-email">{{ user_profile.email }}</p>
+                <p class="profile-join-date">Зарегистрирован: {{ user_profile.date_joined|date:"d.m.Y" }}</p>
+            </div>
+        </div>
+
+        <div class="profile-details">
+            <div class="detail-section">
+                <h3>Личная информация</h3>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Имя:</span>
+                        <span class="detail-value">
+                            {% if user_profile.first_name %}
+                                {{ user_profile.first_name }}
+                            {% else %}
+                                <span class="text-muted">Не указано</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Фамилия:</span>
+                        <span class="detail-value">
+                            {% if user_profile.last_name %}
+                                {{ user_profile.last_name }}
+                            {% else %}
+                                <span class="text-muted">Не указано</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Последний вход:</span>
+                        <span class="detail-value">{{ user_profile.last_login|date:"d.m.Y H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <a href="{% url 'users:profile_edit' %}" class="btn-primary">Редактировать профиль</a>
+                <a href="{% url 'users:password_change' %}" class="btn-secondary">Сменить пароль</a>
+            </div>
+            <div class="profile-home-link">
+                <a href="{% url 'home' %}" class="text-link">← На главную</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

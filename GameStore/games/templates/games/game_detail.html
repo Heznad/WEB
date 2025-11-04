@@ -46,7 +46,7 @@
                     <h3>Цена</h3>
                     {% if game.is_stock %}
                         <p class="price">{{game.price|floatformat:2}} ₽</p>
-                        <button class="buy-btn">Купить сейчас</button>
+                        <button class="btn-primary">Купить сейчас</button>
                     {% else %}
                         <p class="price_not_in_stock">Нет в наличии</p>
                     {% endif %}
@@ -55,7 +55,6 @@
                 <div class="game-actions">
                     <a href="{% url 'edit_game' game.slug %}" class="btn-edit">✏️ Редактировать</a>
                     <a href="{% url 'delete_game' game.slug %}" class="btn-delete">🗑️ Удалить</a>
-                    <a href="{% url 'catalog' %}" class="btn-back">← Назад к каталогу</a>
                 </div>
             </div>
         </div>

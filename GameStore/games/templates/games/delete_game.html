@@ -20,8 +20,8 @@
         <form method="post" class="delete-form">
             {% csrf_token %}
             <div class="form-buttons">
-                <button type="submit" class="btn btn-danger">Да, удалить</button>
-                <a href="{% url 'catalog' %}" class="btn btn-secondary">Отмена</a>
+                <button type="submit" class="btn-primary">Да, удалить</button>
+                <a href="{% url 'catalog' %}" class="btn-secondary">Отмена</a>
             </div>
         </form>
     </div>

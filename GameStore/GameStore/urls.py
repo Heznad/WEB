@@ -13,6 +13,7 @@ admin.site.site_title = "Админка GameStore"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('games.urls')),
+    path('users/', include('users.urls', namespace="users")),
 ]
 
 if settings.DEBUG:

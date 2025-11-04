@@ -13,6 +13,4 @@ urlpatterns = [
     path('edit-game/<slug:game_slug>/', views.UpdateGameView.as_view(), name='edit_game'),
     path('delete-game/<slug:game_slug>/', views.DeleteGameView.as_view(), name='delete_game'),
     path('upload-file/', views.UploadFileView.as_view(), name='upload_file'),
-    path('login/', views.LoginView.as_view(), name='login'),
-    path('register/', views.RegisterView.as_view(), name='register'),
 ]
