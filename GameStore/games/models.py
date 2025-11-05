@@ -140,6 +140,10 @@ class Game(models.Model):
         verbose_name = 'Игра'
         verbose_name_plural = 'Игры'
         ordering = ['-time_create']
+        permissions = [
+            ("can_manage_promotions", "Может управлять скидками и акциями"),
+            ("can_export_data", "Может экспортировать данные"),
+        ]
 
 def upload_files_unique_name(instance, filename):
     """Генерирует уникальное имя файла"""
