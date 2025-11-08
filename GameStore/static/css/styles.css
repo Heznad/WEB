@@ -1946,6 +1946,60 @@ body {
     margin-bottom: 30px;
 }
 
+/* Стили для страницы "Доступ запрещен" */
+.permission-denied-page {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.error-container {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    padding: 50px 40px;
+    text-align: center;
+    width: 100%;
+}
+
+.error-message {
+    margin: 30px 0;
+    color: #cccccc;
+    font-size: 1.1em;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.error-message p {
+    margin-bottom: 15px;
+}
+
+.action-links {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 30px;
+}
+
+.action-links .btn-primary,
+.action-links .btn-secondary {
+    padding: 12px 25px;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Центрирование заголовка */
+.permission-denied-page .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
 /* ===== ФУТЕР (base.html) ===== */
 .footer {
     background-color: #1a1a1a;

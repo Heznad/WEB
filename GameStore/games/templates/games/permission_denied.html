@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="permission-denied-page">
+    <div class="error-container">
+        <h1 class="page-title">Доступ запрещен</h1>
+        <div class="error-message">
+            <p>У вас недостаточно прав для доступа к этой странице.</p>
+            <p>Только администраторы могут добавлять новые игры.</p>
+        </div>
+        <div class="action-links">
+            <a href="{% url 'catalog' %}" class="btn-primary">Вернуться в каталог</a>
+            <a href="{% url 'home' %}" class="btn-secondary">На главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

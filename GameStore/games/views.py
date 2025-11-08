@@ -164,14 +164,30 @@ class ReviewsView(DataMixin, ListView):
         context = super().get_context_data(**kwargs)
         return self.get_mixin_context(context)
 
-class AddGameView(LoginRequiredMixin, DataMixin, CreateView):
+class AddGameView(LoginRequiredMixin, UserPassesTestMixin, DataMixin, CreateView):
     form_class = AddGameModelForm
     template_name = 'games/add_game.html'
     success_url = reverse_lazy('catalog')
     title_page = 'Добавить игру'
     
+    def test_func(self):
+        # Разрешаем доступ только суперпользователям и staff
+        return self.request.user.is_superuser or self.request.user.is_staff or self.request.user.groups.filter(name='Moderators').exists()
+    
+    def handle_no_permission(self):
+        # Перенаправляем на страницу с сообщением об ошибке
+        return redirect('permission_denied')
+    
     def form_valid(self, form):
         return super().form_valid(form)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return self.get_mixin_context(context)
+    
+class PermissionDeniedView(DataMixin, TemplateView):
+    template_name = 'games/permission_denied.html'
+    title_page = 'Доступ запрещен'
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

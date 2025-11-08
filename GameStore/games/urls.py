@@ -11,6 +11,7 @@ urlpatterns = [
     path('reviews/', views.ReviewsView.as_view(), name='reviews'),
     path('about/', views.AboutView.as_view(), name='about'),
     path('add-game/', views.AddGameView.as_view(), name='add_game'),
+    path('permission-denied/', views.PermissionDeniedView.as_view(), name='permission_denied'),
     
     path('game/update/<slug:game_slug>/', views.UpdateGameView.as_view(), name='update_game'),
     path('game/delete/<slug:game_slug>/', views.DeleteGameView.as_view(), name='delete_game'),
