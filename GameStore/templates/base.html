@@ -29,8 +29,16 @@
             </nav>
             <div class="header-right">
                 <div class="cart-icon">
-                    <img src="{% static 'images/cart-icon.png' %}" alt="Корзина" class="cart-img">
-                    <span class="cart-count">0</span>
+                    <a href="{% url 'cart' %}" style="text-decoration: none">
+                        <img src="{% static 'images/cart-icon.png' %}" alt="Корзина" class="cart-img">
+                        <span class="cart-count">
+                            {% if user.is_authenticated %}
+                                {{ user.cart.total_items|default:0 }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </span>
+                    </a>
                 </div>
             </div>
         </div>

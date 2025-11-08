@@ -1,12 +1,12 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Game, UploadFiles
+from .models import Game, UploadFiles, Review, GameComment
 
 class AddGameModelForm(forms.ModelForm):
     class Meta:
         model = Game
         fields = ['title', 'price', 'platform', 'year_release', 'description', 
-                 'age_rating', 'image', 'is_stock', 'is_published'] #Добавил поле image
+                 'age_rating', 'image', 'is_stock', 'is_published']
         
         widgets = {
             'title': forms.TextInput(attrs={
@@ -32,7 +32,7 @@ class AddGameModelForm(forms.ModelForm):
                 'class': 'form-input',
                 'placeholder': '18+'
             }),
-            'image': forms.FileInput(attrs={ #Виджет для поля image
+            'image': forms.FileInput(attrs={
                 'class': 'form-file',
                 'accept': 'image/*'
             }),
@@ -45,17 +45,28 @@ class AddGameModelForm(forms.ModelForm):
             'year_release': 'Год выпуска',
             'description': 'Описание игры',
             'age_rating': 'Возрастной рейтинг',
-            'image': 'Изображение игры', #Заголовок для поля image
+            'image': 'Изображение игры',
             'is_stock': 'В наличии',
             'is_published': 'Опубликовать сразу',
         }
 
-    #Валидация поля image
     def clean_image(self):
         image = self.cleaned_data.get('image')
-        if image:
+        
+        # Если изображение не загружено (None, False или пустое значение)
+        if not image:
+            return image
+        
+        # Если это существующее изображение (уже есть в базе), пропускаем проверку
+        if hasattr(image, 'name') and not hasattr(image, 'file'):
+            return image
+        
+        # Проверяем только новые загружаемые файлы
+        if hasattr(image, 'size'):
             if image.size > 5 * 1024 * 1024:
                 raise ValidationError('Размер изображения не должен превышать 5MB')
+        
+        if hasattr(image, 'content_type'):
             allowed_types = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
             if image.content_type not in allowed_types:
                 raise ValidationError('Допустимы только изображения: JPEG, PNG, GIF, WebP')
@@ -108,4 +119,51 @@ class UploadFileForm(forms.ModelForm):
         labels = {
             'file': 'Выберите файл для загрузки',
             'description': 'Описание файла',
+        }
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['game', 'rating', 'title', 'text']
+        widgets = {
+            'game': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            'rating': forms.Select(attrs={
+                'class': 'form-select',
+            }),
+            'title': forms.TextInput(attrs={
+                'class': 'form-input',
+                'placeholder': 'Введите заголовок отзыва (необязательно)'
+            }),
+            'text': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'rows': 4,
+                'placeholder': 'Напишите ваш отзыв об игре...'
+            }),
+        }
+        labels = {
+            'game': 'Игра',
+            'rating': 'Ваша оценка',
+            'title': 'Заголовок отзыва',
+            'text': 'Текст отзыва',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['game'].queryset = Game.published.in_stock()
+
+class GameCommentForm(forms.ModelForm):
+    class Meta:
+        model = GameComment
+        fields = ['text']
+        widgets = {
+            'text': forms.Textarea(attrs={
+                'class': 'form-textarea',
+                'rows': 3,
+                'placeholder': 'Напишите ваш комментарий...'
+            }),
+        }
+        labels = {
+            'text': 'Комментарий',
         }

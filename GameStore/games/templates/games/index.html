@@ -1,86 +1,152 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load games_tags %}
-{% block content%}
-<div class="main-content-with-sidebar">
-    {% include 'games/sidebar.html' %}
 
-    <!-- Основной контент -->
-    <div class="content-main">
-        <h1 class="page-title">{{title|upper}}</h1>
-        <ul class="games-list">
-            {% for g in games %}
-            <li class="game-card">
-                <div class="game-header">
-                    <a href="{% url 'game_detail' g.slug %}" class="game-title-link">
-                        <h2 class="game-title">{{g.title|capfirst}}</h2>
+{% block content %}
+<div class="container">
+    <h1 class="page-title">{{title}}</h1>
+    
+    <div class="main-content-with-sidebar">
+        <!-- Боковая панель с жанрами -->
+        <aside class="sidebar">
+            <h3>Жанры</h3>
+            <ul class="genre-list">
+                {% for genre in genres %}
+                <li>
+                    <a href="{% url 'catalog_by_genre' genre.slug %}" 
+                       class="genre-link {% if current_genre and current_genre.slug == genre.slug %}active{% endif %}">
+                        {{ genre.name }}
                     </a>
-                    <span class="age-rating">{{g.age_rating|default:"18+"}}</span>
-                </div>
-                <div class="game-content">
-                    <a href="{% url 'game_detail' g.slug %}" class="game-image-link">
-                        <div class="game-image">
-                            {% if g.image %}
-                                <img src="{{ g.image.url }}" alt="{{g.title}}" class="game-img">
-                            {% else %}
-                                <img src="{% static 'images/default_game.jpg' %}" alt="{{g.title}}" class="game-img">
-                            {% endif %}
-                        </div>
-                    </a>
-                    <div class="game-details">
-                        <p class="platform">{{g.platform|upper}}</p>
-                        <p class="year">{{g.year_release}}</p>
-                        <p class="genres">
-                            {% for genre in g.genres.all %}
-                                <span class="genre-tag">{{genre.name}}</span>
-                            {% endfor %}
-                        </p>
-                        <div class="tags">
-                            {% for tag in g.tags.all %}
-                                <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
-                                    {{ tag.name }}
-                                </a>
-                            {% endfor %}
-                        </div>
-                        <p class="description">{{g.description}}</p>
-                        <p class="price">{{g.price|floatformat:2}} ₽</p>
-                    </div>
-                </div>
-                {% if not forloop.last %}
-                <hr class="divider">
-                {% endif %}
-            </li>    
-            {% endfor %}
-        </ul>
-
-        <!-- Пагинация -->
-        {% if page_obj.has_other_pages %}
-        <nav class="list-pages">
-            <ul>
-                {% if page_obj.has_previous %}
-                <li class="page-num">
-                    <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
                 </li>
-                {% endif %}
-                
-                {% for p in paginator.page_range %}
-                    {% if page_obj.number == p %}
-                    <li class="page-num page-num-selected">{{ p }}</li>
-                    {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                {% endfor %}
+            </ul>
+            
+            <h3 style="margin-top: 30px;">Популярные теги</h3>
+            <div class="tags-cloud">
+                {% for tag in tags %}
+                <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
+                    {{ tag.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Основной контент -->
+        <main class="content-main">
+            <!-- Сообщение если нет игр в наличии -->
+            {% if not games %}
+            <div class="no-games-message" style="text-align: center; padding: 50px 20px;">
+                <p style="font-size: 1.5em; color: #ff0000; margin-bottom: 20px;">
+                    😔 К сожалению, сейчас нет игр в наличии
+                </p>
+                <p style="margin-bottom: 30px; color: #cccccc; font-size: 1.1em;">
+                    Попробуйте зайти позже или посмотрите полный каталог игр.
+                </p>
+                <a href="{% url 'catalog' %}" class="btn-primary" style="font-size: 1.1em; padding: 15px 30px;">
+                    Перейти в каталог
+                </a>
+            </div>
+            {% else %}
+                <!-- Список игр (только в наличии) -->
+                <ul class="games-list">
+                    {% for game in games %}
+                    <li class="game-card">
+                        <div class="game-content">
+                            <!-- Изображение игры -->
+                            <div class="game-image">
+                                <a href="{% url 'game_detail' game.slug %}" class="game-image-link">
+                                    {% if game.image %}
+                                    <img src="{{ game.image.url }}" alt="{{ game.title }}" class="game-img">
+                                    {% else %}
+                                    <img src="{% static 'games/images/default_game.jpg' %}" alt="{{ game.title }}" class="game-img">
+                                    {% endif %}
+                                </a>
+                            </div>
+                            
+                            <!-- Информация об игре -->
+                            <div class="game-details">
+                                <div class="game-header">
+                                    <a href="{% url 'game_detail' game.slug %}" class="game-title-link">
+                                        <h2 class="game-title">{{ game.title }}</h2>
+                                    </a>
+                                    {% if game.age_rating %}
+                                    <span class="age-rating">{{ game.age_rating }}</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="platform">{{ game.platform }}</div>
+                                <div class="year">Год выпуска: {{ game.year_release }}</div>
+                                
+                                {% if game.description %}
+                                <p class="description">{{ game.description|truncatewords:30 }}</p>
+                                {% endif %}
+                                
+                                <!-- Жанры игры -->
+                                <div class="game-genres">
+                                    {% for genre in game.genres.all %}
+                                    <span class="genre-tag">{{ genre.name }}</span>
+                                    {% endfor %}
+                                </div>
+                                
+                                <!-- Теги игры -->
+                                <div class="game-tags">
+                                    {% for tag in game.tags.all %}
+                                    <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
+                                        {{ tag.name }}
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                                
+                                <hr class="divider">
+                                
+                                <!-- Цена и кнопки -->
+                                <div class="game-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <div class="price">{{ game.price }} ₽</div>
+                                    
+                                    <div class="game-actions">
+                                        {% if user.is_authenticated %}
+                                        <form method="post" action="{% url 'add_to_cart' game.slug %}" class="add-to-cart-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-success">В корзину</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            
+            <!-- Пагинация (только если есть игры) -->
+            {% if games and page_obj.has_other_pages %}
+            <nav class="list-pages">
+                <ul>
+                    {% if page_obj.has_previous %}
                     <li class="page-num">
-                        <a href="?page={{ p }}">{{ p }}</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
                     </li>
                     {% endif %}
-                {% endfor %}
-                
-                {% if page_obj.has_next %}
-                <li class="page-num">
-                    <a href="?page={{ page_obj.next_page_number }}">Вперед</a>
-                </li>
-                {% endif %}
-            </ul>
-        </nav>
-        {% endif %}
+                    
+                    {% for p in paginator.page_range %}
+                        {% if page_obj.number == p %}
+                        <li class="page-num page-num-selected">{{ p }}</li>
+                        {% elif p >= page_obj.number|add:-2 and p <= page_obj.number|add:2 %}
+                        <li class="page-num">
+                            <a href="?page={{ p }}">{{ p }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-num">
+                        <a href="?page={{ page_obj.next_page_number }}">Вперед</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </main>
     </div>
 </div>
 {% endblock %}

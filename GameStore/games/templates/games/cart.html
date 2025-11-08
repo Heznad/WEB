@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="cart-page">
+    <h1 class="page-title">{{title}}</h1>
+    
+    {% if cart.items.all %}
+    <div class="cart-items">
+        {% for item in cart.items.all %}
+        <div class="game-card">
+            <div class="game-content">
+                <!-- Изображение игры -->
+                <div class="game-image">
+                    {% if item.game.image %}
+                        <img src="{{ item.game.image.url }}" alt="{{ item.game.title }}" class="game-img">
+                    {% else %}
+                        <img src="{% static 'games/images/default_game.jpg' %}" alt="{{ item.game.title }}" class="game-img">
+                    {% endif %}
+                </div>
+                
+                <!-- Информация об игре -->
+                <div class="game-details">
+                    <div class="game-header">
+                        <a href="{% url 'game_detail' item.game.slug %}" class="game-title-link">
+                            <h2 class="game-title">{{ item.game.title }}</h2>
+                        </a>
+                        {% if item.game.age_rating %}
+                        <span class="age-rating">{{ item.game.age_rating }}</span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="platform">{{ item.game.platform }}</div>
+                    <div class="year">Год выпуска: {{ item.game.year_release }}</div>
+                    
+                    {% if item.game.description %}
+                    <p class="description">{{ item.game.description|truncatewords:30 }}</p>
+                    {% endif %}
+                    
+                    <hr class="divider">
+                    
+                    <!-- Цена и кнопки -->
+                    <div class="game-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="price-section">
+                            <div class="price">{{ item.game.price }} ₽ </div>
+                            <div class="item-total" style="margin-top: 5px;">
+                            </div>
+                        </div>
+                        
+                        <div class="game-actions">
+                            <form method="post" action="{% url 'remove_from_cart' item.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-delete">🗑️ Удалить</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="cart-summary">
+        <div class="total-items">Всего товаров: {{ cart.total_items }}</div>
+        <div class="total-price">Общая сумма: <strong>{{ cart.total_price }} ₽</strong></div>
+        <button class="btn-primary btn-checkout">Оформить заказ</button>
+    </div>
+    {% else %}
+    <div class="empty-cart" style="text-align: center">
+        <p>Ваша корзина пуста</p>
+        <a href="{% url 'catalog' %}" class="btn-primary" style="margin-top: 40px;">Перейти в каталог</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

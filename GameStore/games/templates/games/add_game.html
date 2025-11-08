@@ -3,7 +3,6 @@
 <div class="form-page">
     <h1 class="page-title">{{title|upper}}</h1>
     <div class="form-container">
-        <!-- ДОБАВЛЯЕМ enctype ДЛЯ ЗАГРУЗКИ ФАЙЛОВ -->
         <form method="post" class="game-form" enctype="multipart/form-data">
             {% csrf_token %} 
             {% if form.non_field_errors %}
@@ -35,8 +34,12 @@
                 {% endfor %}
             </div>
             <div class="form-actions">
-                <button type="submit" class="submit-btn">Добавить игру</button>
-                <a href="{% url 'catalog' %}" class="cancel-btn">Отмена</a>
+                {% if is_edit %}
+                <button type="submit" class="btn-primary">Сохранить изменения</button>
+                {% else %}
+                <button type="submit" class="btn-primary">Добавить игру</button>
+                {% endif %}
+                <a href="{% url 'catalog' %}" class="btn-secondary">Отмена</a>
             </div>
         </form>
     </div>

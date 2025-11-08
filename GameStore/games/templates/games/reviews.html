@@ -3,13 +3,49 @@
 <div class="reviews-page">
     <h1 class="page-title">{{title|capfirst}}</h1>
     
+    <!-- Форма добавления отзыва -->
+    {% if user.is_authenticated %}
+    <div class="add-review-section">
+        <h2>Оставить отзыв об игре</h2>
+        <form method="post" action="{% url 'add_review_ajax' %}" class="review-form" id="reviewForm">
+            {% csrf_token %}
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ review_form.game.id_for_label }}">Игра:</label>
+                    {{ review_form.game }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ review_form.rating.id_for_label }}">Оценка:</label>
+                    {{ review_form.rating }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="{{ review_form.title.id_for_label }}">Заголовок (необязательно):</label>
+                {{ review_form.title }}
+            </div>
+            <div class="form-group">
+                <label for="{{ review_form.text.id_for_label }}">Текст отзыва:</label>
+                {{ review_form.text }}
+            </div>
+            <button type="submit" class="btn-primary" id="submitReview" style="margin-top: 20px;">Опубликовать отзыв</button>
+        </form>
+    </div>
+    {% else %}
+    <div class="auth-required">
+        <p>Чтобы оставить отзыв, пожалуйста <a href="{% url 'users:login' %}">войдите</a> в систему.</p>
+    </div>
+    {% endif %}
+    
+    <!-- Список отзывов -->
     <div class="reviews-list">
+        <h2>Отзывы наших клиентов</h2>
+        
         {% for review in reviews %}
-        <div class="review-card">
+        <div class="review-card" id="review-{{ review.id }}">
             <div class="review-header">
                 <div class="review-author">
-                    <strong>{{review.user.username}}</strong>
-                    <span class="review-date">{{review.date}}</span>
+                    <strong>{{ review.user.username }}</strong>
+                    <span class="review-date">{{ review.date|date:"d.m.Y H:i" }}</span>
                 </div>
                 <div class="review-rating">
                     Рейтинг: 
@@ -18,17 +54,34 @@
                         {% for i in range %}★{% endfor %}
                         {% endwith %}
                     </span>
-                    ({{review.rating}}/5)
+                    ({{ review.rating }}/5)
                 </div>
             </div>
             
+            {% if review.game %}
             <div class="review-game">
-                Игра: <strong>{{review.game|capfirst}}</strong>
+                Игра: 
+                <a href="{% url 'game_detail' review.game.slug %}" class="game-link">
+                    <strong>{{ review.game.title }}</strong>
+                </a>
             </div>
+            {% endif %}
+            
+            {% if review.title %}
+            <h3 class="review-title">{{ review.title }}</h3>
+            {% endif %}
             
             <div class="review-text">
-                {{review.text|linebreaks}} 
+                {{ review.text|linebreaks }}
             </div>
+            
+            <!-- проверка прав -->
+            {% if user == review.user or perms.games.can_edit_all_reviews %}
+            <div class="review-actions" style="margin-top: 20px;">
+                <a href="{% url 'update_review' review.id %}" class="btn-edit">✏️ Редактировать</a>
+                <a href="{% url 'delete_review' review.id %}" class="btn-delete">🗑️ Удалить</a>
+            </div>
+            {% endif %}
         </div>
         {% empty %}
         <div class="no-reviews">
@@ -37,7 +90,7 @@
         {% endfor %}
     </div>
 
-    <!-- Пагинация для отзывов -->
+    <!-- Пагинация -->
     {% if page_obj.has_other_pages %}
     <nav class="list-pages">
         <ul>
@@ -66,4 +119,48 @@
     </nav>
     {% endif %}
 </div>
+
+<!-- JavaScript для AJAX отправки отзыва -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const reviewForm = document.getElementById('reviewForm');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitReview');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Очищаем форму
+                    reviewForm.reset();
+                    // Просто очищаем форму без уведомлений
+                } else {
+                    console.error('Ошибка при добавлении отзыва');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при отправке отзыва');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+        });
+    }
+});
+</script>
 {% endblock %}

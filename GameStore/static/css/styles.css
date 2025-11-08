@@ -28,7 +28,7 @@ body {
 .page-title {
     color: #ffffff;
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
     font-size: 2.5em;
 }
 
@@ -346,6 +346,98 @@ body {
     opacity: 0.5;
 }
 
+/* Стили для сообщения "нет игр"(catalog.html) */
+.no-games-message {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 15px;
+    padding: 60px 40px;
+    text-align: center;
+    margin: 50px auto;
+    max-width: 600px;
+}
+
+.no-games-message p:first-child {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.no-games-message p:nth-child(2) {
+    font-size: 1.1em;
+    color: #cccccc;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.game-tags, .game-genres {
+    margin-top: 10px;
+}
+
+.game-tags .game-tag, .game-genres .genre-tag {
+    margin: 2px;
+    font-size: 0.8em;
+}
+
+.tags-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.tags-cloud .game-tag {
+    font-size: 0.8em;
+    padding: 3px 8px;
+}
+
+/* Стили для сообщения "нет игр"(index.html)*/
+.no-games-message {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 15px;
+    padding: 60px 40px;
+    text-align: center;
+    margin: 50px auto;
+    max-width: 600px;
+}
+
+.no-games-message p:first-child {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.no-games-message p:nth-child(2) {
+    font-size: 1.1em;
+    color: #cccccc;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.game-tags, .game-genres {
+    margin: 10px 0;
+}
+
+.game-tags .game-tag, .game-genres .genre-tag {
+    margin: 2px;
+    font-size: 0.8em;
+}
+
+.tags-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.tags-cloud .game-tag {
+    font-size: 0.8em;
+    padding: 3px 8px;
+}
+
 /* Ссылки на игры */
 .game-title-link {
     text-decoration: none;
@@ -514,6 +606,321 @@ body {
 
 .btn-delete:hover {
     background-color: #c82333;
+}
+
+.in-cart-badge {
+    background: #28a745;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1em;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.like-btn.active[data-value="1"] {
+    border-color: #27ae60;
+    background: #27ae60;
+    color: white;
+}
+
+.like-btn.active[data-value="-1"] {
+    border-color: #e74c3c;
+    background: #e74c3c;
+    color: white;
+}
+
+.game-likes {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    padding: 15px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+/* СТИЛИ ДЛЯ КОММЕНТАРИЕВ */
+.game-comments {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding: 30px;
+    background: #333;
+    border-radius: 15px;
+    border: 1px solid #ff0000;
+}
+
+.game-comments h3 {
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #ff0000;
+    font-weight: 600;
+}
+
+.add-comment-form {
+    background: #333;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    border: 1px solid #ff0000;
+}
+
+.add-comment-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 100px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.add-comment-form textarea:focus {
+    outline: none;
+    border-color: #db3434;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.add-comment-form button {
+    background: linear-gradient(135deg, #5a0707, #ff0000);
+    color: #ffffff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    margin-top: 15px;
+}
+
+.add-comment-form button:hover {
+    background: linear-gradient(135deg, #9d1414, #ff0000);
+    transform: translateY(-2px);
+}
+
+.comment-card {
+    background: #333;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ff0000;
+    transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+    transform: translateY(-2px);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f2f6;
+}
+
+.comment-header strong {
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.comment-date {
+    color: #c4d4d5;
+    font-size: 14px;
+}
+
+.comment-text {
+    color: #ffffff;
+    line-height: 1.6;
+    font-size: 15px;
+    margin-bottom: 15px;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-top: 15px;
+    border-top: 1px solid #f1f2f6;
+}
+
+.btn-edit, .btn-delete {
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-edit {
+    background: #f39c12;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #e67e22;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.no-comments {
+    text-align: center;
+    padding: 40px;
+    color: #7f8c8d;
+    font-style: italic;
+    background: white;
+    border-radius: 12px;
+    border: 2px dashed #bdc3c7;
+}
+
+.auth-required {
+    background: #000000;
+    border: 1px solid #ff0000;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.auth-required a {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-required a:hover {
+    text-decoration: underline;
+}
+
+/* СТИЛИ ДЛЯ ЛАЙКОВ */
+.game-likes {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+    padding: 15px;
+    background: #1a1a1a;
+}
+
+.like-form {
+    display: inline;
+}
+
+.like-btn {
+    background: #333;
+    border: 2px solid #ff0000;
+    border-radius: 25px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 80px;
+    justify-content: center;
+}
+
+.like-btn:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+}
+
+.like-btn.active[data-value="1"] {
+    border-color: #27ae60;
+    background: #27ae60;
+    color: white;
+}
+
+.like-btn.active[data-value="-1"] {
+    border-color: #e74c3c;
+    background: #e74c3c;
+    color: white;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.like-btn .count {
+    font-weight: 600;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+/* СТИЛИ ДЛЯ КНОПОК КОРЗИНЫ */
+.add-to-cart-form {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+/* СТИЛИ ДЛЯ КНОПОК РЕДАКТИРОВАНИЯ ИГРЫ */
+.game-actions a {
+    padding: 10px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.game-actions .btn-edit {
+    background: #3498db;
+    color: white;
+}
+
+.game-actions .btn-edit:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.game-actions .btn-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.game-actions .btn-delete:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+/* Контейнер для цены и корзины */
+.price-cart-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 100px;
+    margin-bottom: 20px;
+}
+
+/* Выравнивание кнопок корзины */
+.cart-actions {
+    display: flex;
+    align-items: center;
 }
 
 /* ===== ФОРМЫ (add_game.html, login.html, register.html, upload_file.html) ===== */
@@ -1198,6 +1605,22 @@ body {
     font-size: 0.95em;
 }
 
+/* Стили для ссылок на игры в отзывах */
+.game-link {
+    color: #ff2a2a;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.game-link:hover {
+    color: #ffffff;
+    background-color: #ff2a2a;
+    text-decoration: none;
+}
+
 /* ===== СТРАНИЦА "О САЙТЕ" (about.html) ===== */
 .about-page {
     max-width: 1200px;
@@ -1470,6 +1893,57 @@ body {
     color: #ffffff;
     cursor: default;
     box-shadow: 0 2px 8px rgba(255, 0, 0, 0.3);
+}
+
+/* Стили для страницы корзины */
+.cart-page {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.cart-items {
+    margin-bottom: 30px;
+}
+
+.cart-summary {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    margin-top: 30px;
+}
+
+.total-items {
+    font-size: 1.2em;
+    color: #ffffff;
+    margin-bottom: 10px;
+}
+
+.total-price {
+    font-size: 1.5em;
+    color: #ff2a2a;
+    margin-bottom: 20px;
+}
+
+.btn-checkout {
+    padding: 15px 40px;
+    font-size: 1.2em;
+}
+
+.empty-cart {
+    background-color: #1a1a1a;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    padding: 60px 40px;
+    margin: 50px auto;
+    max-width: 600px;
+}
+
+.empty-cart p {
+    font-size: 1.5em;
+    color: #ff0000;
+    margin-bottom: 30px;
 }
 
 /* ===== ФУТЕР (base.html) ===== */

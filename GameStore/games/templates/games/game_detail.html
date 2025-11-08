@@ -1,67 +1,341 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
 <div class="game-detail-page">
-    <h1 class="page-title">{{game.title|upper}}</h1>
-    
-    <div class="game-detail-card">
+    <div class="game-detail-card" style="max-width: 1000px; margin: 0 auto;">
+        <!-- Заголовок игры -->
         <div class="game-detail-header">
-            <h2 class="game-title">{{game.title|capfirst}}</h2>
-            <span class="age-rating">{{game.age_rating|default:"18+"}}</span>
+            <h1 class="page-title">{{ game.title }}</h1>
+            {% if game.age_rating %}
+            <span class="age-rating">{{ game.age_rating }}</span>
+            {% endif %}
         </div>
-        
+
+        <!-- Основной контент -->
         <div class="game-detail-content">
-            <div class="game-detail-image">
+            <!-- Изображение игры -->
+            <div class="game-detail-image" style="flex: 0 0 400px;">
                 {% if game.image %}
-                    <img src="{{ game.image.url }}" alt="{{game.title}}" class="game-detail-img">
+                <img src="{{ game.image.url }}" alt="{{ game.title }}" class="game-detail-img">
                 {% else %}
-                    <img src="{% static 'images/default_game.jpg' %}" alt="{{game.title}}" class="game-detail-img">
+                <img src="{% static 'games/images/default_game.jpg' %}" alt="{{ game.title }}" class="game-detail-img">
                 {% endif %}
+                
+                <!-- Лайки и дизлайки-->
+                <div class="game-likes" style="margin-top: 20px; justify-content: center; display: flex; gap: 15px;">
+                    {% if user.is_authenticated %}
+                    <form method="post" action="{% url 'toggle_like' game.slug %}" class="like-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="value" value="1">
+                        <button type="submit" class="like-btn {% if user_reaction == 1 %}active{% endif %}" 
+                                data-value="1" onclick="toggleLike(event, 1)">
+                            👍 <span class="count">{{ likes_count }}</span>
+                        </button>
+                    </form>
+                    
+                    <form method="post" action="{% url 'toggle_like' game.slug %}" class="like-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="value" value="-1">
+                        <button type="submit" class="like-btn {% if user_reaction == -1 %}active{% endif %}" 
+                                data-value="-1" onclick="toggleLike(event, -1)">
+                            👎 <span class="count">{{ dislikes_count }}</span>
+                        </button>
+                    </form>
+                    {% else %}
+                    <div style="display: flex; gap: 10px;">
+                        <span class="like-btn">👍 {{ likes_count }}</span>
+                        <span class="like-btn">👎 {{ dislikes_count }}</span>
+                    </div>
+                    {% endif %}
+                </div>
             </div>
-            
-            <div class="game-detail-info">
+
+            <!-- Информация об игре -->
+            <div class="game-detail-info" style="flex: 1; min-width: 0;">
+                <!-- Основная информация -->
                 <div class="info-section">
                     <h3>Информация об игре</h3>
-                    <p><strong>Платформа:</strong> {{game.platform|upper}}</p>
-                    <p><strong>Год выпуска:</strong> {{game.year_release}}</p>
-                    <p><strong>Жанры:</strong> 
-                        {% for genre in game.genres.all %}
-                            <span class="genre-tag">{{genre.name}}</span>
-                        {% endfor %}
-                    </p>
-                    <p><strong>Теги:</strong></p>
-                        {% for tag in game.tags.all %}
-                            <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
-                                 {{ tag.name }}
-                            </a>
-                        {% endfor %}
-                </div>
-                
-                <div class="info-section">
-                    <h3>Описание</h3>
-                    <p class="game-description">{{game.description}}</p>
-                </div>
-                
-                <div class="info-section">
-                    <h3>Цена</h3>
-                    {% if game.is_stock %}
-                        <p class="price">{{game.price|floatformat:2}} ₽</p>
-                        <button class="btn-primary">Купить сейчас</button>
-                    {% else %}
-                        <p class="price_not_in_stock">Нет в наличии</p>
+                    <p><strong>Платформа:</strong> {{ game.platform }}</p>
+                    <p><strong>Год выпуска:</strong> {{ game.year_release }}</p>
+                    <p><strong>Цена:</strong> {{ game.price }} ₽</p>
+                    
+                    <!-- Статус наличия -->
+                    {% if not game.is_stock %}
+                    <p><strong>Статус:</strong> <span style="color: #ff0000;">Нет в наличии</span></p>
                     {% endif %}
                 </div>
 
-                <div class="game-actions">
-                    <a href="{% url 'edit_game' game.slug %}" class="btn-edit">✏️ Редактировать</a>
-                    <a href="{% url 'delete_game' game.slug %}" class="btn-delete">🗑️ Удалить</a>
+                <!-- Жанры -->
+                <div class="info-section">
+                    <h3>Жанры</h3>
+                    <div class="game-genres">
+                        {% for genre in game.genres.all %}
+                        <span class="genre-tag">{{ genre.name }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Теги -->
+                <div class="info-section">
+                    <h3>Теги</h3>
+                    <div class="game-tags">
+                        {% for tag in game.tags.all %}
+                        <a href="{% url 'catalog_by_tag' tag.slug %}" class="game-tag">
+                            {{ tag.name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Цена и корзина -->
+                <div class="info-section">
+                    <div class="price-cart-container">
+                        <div class="price-section">
+                            <div class="price">{{ game.price }} ₽</div>
+                            {% if not game.is_stock %}
+                            <div class="price_not_in_stock">
+                                Нет в наличии
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="cart-actions">
+                            {% if user.is_authenticated and game.is_stock %}
+                                {% if in_cart %}
+                                <div class="in-cart-badge">
+                                    ✓ В корзине
+                                </div>
+                                {% else %}
+                                <form method="post" action="{% url 'add_to_cart' game.slug %}" class="add-to-cart-form" id="addToCartForm">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-success" id="addToCartBtn">
+                                        В корзину
+                                    </button>
+                                </form>
+                                {% endif %}
+                            {% elif not user.is_authenticated and game.is_stock %}
+                                <a href="{% url 'users:login' %}" class="btn-secondary" style="margin-left: -10px;">
+                                    Войдите чтобы купить
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Кнопки редактирования (для админов) -->
+                    {% if perms.games.change_game %}
+                    <div class="admin-actions">
+                        <a href="{% url 'update_game' game.slug %}" class="btn-edit">✏️ Редактировать</a>
+                        <a href="{% url 'delete_game' game.slug %}" class="btn-delete">🗑️ Удалить</a>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
+
+        <!-- Описание игры -->
+        {% if game.description %}
+        <div class="info-section" style="margin-top: 30px;">
+            <h3>Описание</h3>
+            <p class="game-description">{{ game.description|linebreaks }}</p>
+        </div>
+        {% endif %}
     </div>
-    
-    <div class="back-link">
+
+    <!-- Комментарии -->
+    <div class="game-comments" style="max-width: 1000px; margin: 30px auto;">
+        <h3>Комментарии ({{ comments.count }})</h3>
+        
+        <!-- Форма добавления комментария -->
+        {% if user.is_authenticated %}
+        <div class="add-comment-form">
+            <form method="post" action="{% url 'add_comment' game.slug %}" id="commentForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ comment_form.text }}
+                </div>
+                <button type="submit" class="btn-primary">Добавить комментарий</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="auth-required">
+            <p>Чтобы оставить комментарий, пожалуйста <a href="{% url 'users:login' %}">войдите</a> в систему.</p>
+        </div>
+        {% endif %}
+
+        <!-- Список комментариев -->
+        <div class="comments-list">
+            {% for comment in comments %}
+            <div class="comment-card" id="comment-{{ comment.id }}">
+                <div class="comment-header">
+                    <strong>{{ comment.user.username }}</strong>
+                    <span class="comment-date">{{ comment.created_at|date:"d.m.Y H:i" }}</span>
+                </div>
+                <div class="comment-text">
+                    {{ comment.text|linebreaks }}
+                </div>
+                
+                <!-- Кнопки редактирования (автор или модератор) -->
+                {% if user == comment.user or perms.games.can_edit_all_comments %}
+                <div class="comment-actions">
+                    <a href="#" class="btn-edit">✏️ Редактировать</a>
+                    <a href="#" class="btn-delete">🗑️ Удалить</a>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="no-comments">
+                <p>Пока нет комментариев. Будьте первым!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Кнопка возврата -->
+    <div class="back-link" style="max-width: 1000px; margin: 0 auto; text-align: center;">
         <a href="{% url 'catalog' %}" class="back-to-catalog">← Вернуться в каталог</a>
     </div>
 </div>
+
+<!-- JavaScript для AJAX -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Добавление в корзину
+    const addToCartForm = document.getElementById('addToCartForm');
+    
+    if (addToCartForm) {
+        addToCartForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('addToCartBtn');
+            const originalText = submitBtn.textContent;
+            
+            // Меняем текст кнопки на "Добавление..."
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Добавление...';
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Заменяем форму на надпись "В корзине"
+                    const cartBadge = document.createElement('div');
+                    cartBadge.className = 'in-cart-badge';
+                    cartBadge.style = 'background: #28a745; color: white; padding: 15px 25px; border-radius: 8px; font-weight: bold; font-size: 1.1em;';
+                    cartBadge.textContent = '✓ В корзине';
+                    
+                    addToCartForm.replaceWith(cartBadge);
+                    
+                    // Обновляем счетчик корзины в шапке если он есть
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount && data.cart_total_items) {
+                        cartCount.textContent = data.cart_total_items;
+                    }
+                } else {
+                    // В случае ошибки возвращаем кнопку в исходное состояние
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                    alert('Ошибка при добавлении в корзину');
+                }
+            })
+            .catch(error => {
+                // В случае ошибки возвращаем кнопку в исходное состояние
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+                alert('Ошибка при добавлении в корзину');
+            });
+        });
+    }
+
+    // Добавление комментария
+    const commentForm = document.getElementById('commentForm');
+    if (commentForm) {
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Отправка...';
+            
+            fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': this.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new FormData(this)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Очищаем форму и обновляем страницу
+                    this.reset();
+                    location.reload();
+                } else {
+                    alert('Ошибка при добавлении комментария');
+                }
+            })
+            .catch(error => {
+                alert('Ошибка при отправке комментария');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            });
+        });
+    }
+});
+
+// Функция для лайков
+function toggleLike(event, value) {
+    event.preventDefault();
+    
+    const form = event.target.closest('form');
+    const likeBtn = event.target;
+    const countSpan = likeBtn.querySelector('.count');
+    
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: new FormData(form)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Обновляем счетчики
+            const likeBtns = document.querySelectorAll('.like-btn');
+            likeBtns.forEach(btn => {
+                const btnValue = parseInt(btn.getAttribute('data-value'));
+                if (btnValue === data.current_value) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+                
+                // Обновляем счетчики
+                if (btnValue === 1) {
+                    btn.querySelector('.count').textContent = data.likes_count;
+                } else if (btnValue === -1) {
+                    btn.querySelector('.count').textContent = data.dislikes_count;
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+</script>
 {% endblock %}

@@ -258,22 +258,65 @@ class Review(models.Model):
         (5, '5 звезд'),
     ]
     rating = models.IntegerField(choices=RATING_CHOICES, verbose_name="Рейтинг")
-    date = models.DateTimeField(auto_now_add=True, verbose_name="Дата отзыва")
+    title = models.CharField(max_length=200, verbose_name="Заголовок отзыва", blank=True)
     text = models.TextField(verbose_name="Текст отзыва")
-    
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, verbose_name="Игра")
+    date = models.DateTimeField(auto_now_add=True, verbose_name="Дата отзыва")
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, verbose_name="Игра", null=True, blank=True)
     
     is_published = models.BooleanField(default=True, verbose_name="Опубликовано")
     
     def __str__(self):
-        return f"Отзыв от {self.user.username} на {self.game.title}"
+        if self.game:
+            return f"Отзыв от {self.user.username} на {self.game.title}"
+        return f"Отзыв от {self.user.username}"
     
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ['-date']
+        permissions = [
+            ("can_edit_all_reviews", "Может редактировать все отзывы"),
+        ]
 
+class GameComment(models.Model):
+    """Комментарии к играм"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='comments', verbose_name="Игра")
+    text = models.TextField(verbose_name="Текст комментария")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    is_published = models.BooleanField(default=True, verbose_name="Опубликовано")
+    
+    class Meta:
+        verbose_name = 'Комментарий к игре'
+        verbose_name_plural = 'Комментарии к играм'
+        ordering = ['-created_at']
+        permissions = [
+            ("can_edit_all_comments", "Может редактировать все комментарии"),
+        ]
 
+    def __str__(self):
+        return f"Комментарий от {self.user.username} к {self.game.title}"
+
+class GameLike(models.Model):
+    """Лайки/дизлайки для игр"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='likes', verbose_name="Игра")
+    LIKE_CHOICES = [
+        (1, 'Нравится'),
+        (-1, 'Не нравится'),
+    ]
+    value = models.IntegerField(choices=LIKE_CHOICES, verbose_name="Тип реакции")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    
+    class Meta:
+        verbose_name = 'Реакция на игру'
+        verbose_name_plural = 'Реакции на игры'
+        unique_together = ['user', 'game']
+
+    def __str__(self):
+        reaction = "лайк" if self.value == 1 else "дизлайк"
+        return f"{reaction} от {self.user.username} для {self.game.title}"
 
 @receiver(post_save, sender=Game)
 def create_upload_files_record(sender, instance, created, **kwargs):
